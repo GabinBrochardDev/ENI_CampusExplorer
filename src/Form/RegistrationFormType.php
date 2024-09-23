@@ -24,7 +24,7 @@ class RegistrationFormType extends AbstractType
                     new NotBlank(['message' => 'Veuillez entrer une adresse email']),
                 ],
             ])
-            ->add('username', null, [
+            ->add('nom', null, [
                 'label' => 'Pseudo',
                 'constraints' => [
                     new NotBlank(['message' => 'Veuillez entrer un pseudonyme']),
@@ -42,7 +42,7 @@ class RegistrationFormType extends AbstractType
                     ]),
                 ],
             ])
-            ->add('firstName', TextType::class, [
+            ->add('prenom', TextType::class, [
                 'label' => 'Prénom',
                 'constraints' => [
                     new NotBlank(['message' => 'Veuillez entrer un prénom']),

@@ -18,10 +18,11 @@ security:
                 login_path: login
                 check_path: login
                 default_target_path: home
-                username_parameter: _username
+                username_parameter: _nom
                 password_parameter: _password
             logout:
                 path: logout
+                target: login
 
     access_control:
          - { path: ^/login }

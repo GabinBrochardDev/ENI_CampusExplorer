@@ -3,23 +3,45 @@
 {% block title %}Mon Profil{% endblock %}
 
 {% block body %}
-    <h1>Mon Profil</h1>
+<div class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-6">Mon Profil</h1>
 
-    {{ form_start(form) }}
-        {{ form_row(form.nom) }}
-        {{ form_row(form.prenom) }}
-        {{ form_row(form.username) }}
-        {{ form_row(form.email) }}
-        {{ form_row(form.telephone) }}
-        {{ form_row(form.password.first) }}
-        {{ form_row(form.password.second) }}
+    <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg mx-auto">
+        {{ form_start(form, {'attr': {'class': 'space-y-4'}}) }}
 
-        <button class="btn btn-primary">Mettre à jour</button>
-    {{ form_end(form) }}
+            {{ form_row(form.nom, {'attr': {'class': 'border border-gray-300 rounded-md p-2 w-full'}}) }}
 
-    {% for message in app.flashes('success') %}
-        <div class="alert alert-success">
-            {{ message }}
-        </div>
-    {% endfor %}
+            {{ form_row(form.prenom, {'attr': {'class': 'border border-gray-300 rounded-md p-2 w-full'}}) }}
+
+            {{ form_row(form.email, {'attr': {'class': 'border border-gray-300 rounded-md p-2 w-full'}}) }}
+
+            {{ form_row(form.telephone, {'attr': {'class': 'border border-gray-300 rounded-md p-2 w-full'}}) }}
+
+            <div>
+                {{ form_label(form.password.first, 'Mot de passe', {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                {{ form_widget(form.password.first, {'attr': {'class': 'border border-gray-300 rounded-md p-2 w-full'}}) }}
+                {{ form_errors(form.password.first, {'attr': {'class': 'text-red-500 text-sm'}}) }}
+            </div>
+
+            <div>
+                {{ form_label(form.password.second, 'Confirmer le mot de passe', {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                {{ form_widget(form.password.second, {'attr': {'class': 'border border-gray-300 rounded-md p-2 w-full'}}) }}
+                {{ form_errors(form.password.second, {'attr': {'class': 'text-red-500 text-sm'}}) }}
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="mt-4 bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    Mettre à jour
+                </button>
+            </div>
+
+        {{ form_end(form) }}
+
+        {% for message in app.flashes('success') %}
+            <div class="mt-4 p-4 bg-green-100 text-green-700 rounded">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}
