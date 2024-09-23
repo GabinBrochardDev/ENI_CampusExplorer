@@ -1,17 +1,16 @@
 <?php
 namespace App\Entity;
 
-use App\Repository\ParticipantRepository;
-use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: ParticipantRepository::class)]
+#[ORM\Entity]
 class Participant implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
@@ -26,33 +25,62 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
-    // Ajout de la propriété isActive
     #[ORM\Column(type: 'boolean')]
     private bool $isActive = true;
 
-    // Ajout des nouvelles propriétés
     #[ORM\Column(length: 15, nullable: true)]
     private ?string $telephone = null;
 
     #[ORM\Column(length: 100)]
-    private ?string $nom = null;
+    private ?string $firstName = null;
 
     #[ORM\Column(length: 100)]
-    private ?string $prenom = null;
+    private ?string $lastName = null;
 
     #[ORM\Column(length: 100)]
     private ?string $campus = null;
 
-    // Getters et setters pour isActive
-    public function getIsActive(): bool
+    // Implement the necessary methods from UserInterface and PasswordAuthenticatedUserInterface
+    public function getPassword(): ?string
     {
-        return $this->isActive;
+        return $this->password;
     }
 
-    public function setIsActive(bool $isActive): self
+    public function setPassword(string $password): self
     {
-        $this->isActive = $isActive;
+        $this->password = $password;
         return $this;
+    }
+
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->username;
+    }
+
+    public function getUsername(): ?string
+    {
+        return $this->username;
+    }
+    
+    public function setUsername(string $username): self
+    {
+        $this->username = $username;
+    
+        return $this;
+    }
+    
+
+    public function eraseCredentials()
+    {
+        // Efface les informations sensibles, si nécessaire
     }
 
     public function getId(): ?int
@@ -71,96 +99,58 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getUsername(): ?string
+    public function getFirstName(): ?string
     {
-        return $this->username;
+        return $this->firstName;
     }
 
-    public function setUsername(string $username): static
+    public function setFirstName(string $firstName): static
     {
-        $this->username = $username;
+        $this->firstName = $firstName;
         return $this;
     }
 
-    public function getUserIdentifier(): string
+    public function getLastName(): ?string
     {
-        return (string) $this->username;
+        return $this->lastName;
     }
 
-    public function getRoles(): array
+    public function setLastName(string $lastName): static
     {
-        $roles = $this->roles;
-        $roles[] = 'ROLE_USER';
-        return array_unique($roles);
-    }
-
-    public function setRoles(array $roles): static
-    {
-        $this->roles = $roles;
+        $this->lastName = $lastName;
         return $this;
     }
 
-    public function getPassword(): ?string
-    {
-        return $this->password;
-    }
-
-    public function setPassword(string $password): static
-    {
-        $this->password = $password;
-        return $this;
-    }
-
-    public function eraseCredentials(): void
-    {
-        // Effacez les données temporaires si nécessaire
-    }
-
-    // Getters et setters pour telephone
     public function getTelephone(): ?string
     {
         return $this->telephone;
     }
 
-    public function setTelephone(?string $telephone): self
+    public function setTelephone(?string $telephone): static
     {
         $this->telephone = $telephone;
         return $this;
     }
 
-    // Getters et setters pour nom
-    public function getNom(): ?string
-    {
-        return $this->nom;
-    }
-
-    public function setNom(string $nom): self
-    {
-        $this->nom = $nom;
-        return $this;
-    }
-
-    // Getters et setters pour prenom
-    public function getPrenom(): ?string
-    {
-        return $this->prenom;
-    }
-
-    public function setPrenom(string $prenom): self
-    {
-        $this->prenom = $prenom;
-        return $this;
-    }
-
-    // Getters et setters pour campus
     public function getCampus(): ?string
     {
         return $this->campus;
     }
 
-    public function setCampus(string $campus): self
+    public function setCampus(string $campus): static
     {
         $this->campus = $campus;
+        return $this;
+    }
+
+    public function getIsActive(): bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(bool $isActive): static
+    {
+        $this->isActive = $isActive;
         return $this;
     }
 }

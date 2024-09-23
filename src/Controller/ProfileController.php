@@ -17,6 +17,11 @@ class ProfileController extends AbstractController
     #[Route('/profile', name: 'app_profile')]
     public function editProfile(Request $request, EntityManagerInterface $entityManager, UserInterface $user, UserPasswordHasherInterface $passwordHasher): Response
     {
+        // Vérifiez si l'utilisateur est une instance de Participant
+        if (!$user instanceof Participant) {
+            throw new \LogicException('The user is not a valid Participant.');
+        }
+
         $participant = $user;
 
         $form = $this->createForm(ProfileType::class, $participant);
