@@ -11,6 +11,13 @@
         {{ form_row(registrationForm.email) }}
         {{ form_row(registrationForm.username) }}
         {{ form_row(registrationForm.plainPassword) }}
+        {{ form_row(registrationForm.firstName) }}
+        {{ form_row(registrationForm.lastName) }}
+        {{ form_row(registrationForm.telephone) }}
+        {{ form_row(registrationForm.campus) }}
+        {# Optionally, include these fields based on your logic #}
+        {# {{ form_row(registrationForm.roles) }} #}
+        {# {{ form_row(registrationForm.isActive) }} #}
         <button type="submit" class="btn">S'inscrire</button>
     {{ form_end(registrationForm) }}
 {% endblock %}
