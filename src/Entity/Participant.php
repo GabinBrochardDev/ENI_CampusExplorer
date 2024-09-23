@@ -30,6 +30,19 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'boolean')]
     private bool $isActive = true;
 
+    // Ajout des nouvelles propriétés
+    #[ORM\Column(length: 15, nullable: true)]
+    private ?string $telephone = null;
+
+    #[ORM\Column(length: 100)]
+    private ?string $nom = null;
+
+    #[ORM\Column(length: 100)]
+    private ?string $prenom = null;
+
+    #[ORM\Column(length: 100)]
+    private ?string $campus = null;
+
     // Getters et setters pour isActive
     public function getIsActive(): bool
     {
@@ -101,5 +114,53 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     public function eraseCredentials(): void
     {
         // Effacez les données temporaires si nécessaire
+    }
+
+    // Getters et setters pour telephone
+    public function getTelephone(): ?string
+    {
+        return $this->telephone;
+    }
+
+    public function setTelephone(?string $telephone): self
+    {
+        $this->telephone = $telephone;
+        return $this;
+    }
+
+    // Getters et setters pour nom
+    public function getNom(): ?string
+    {
+        return $this->nom;
+    }
+
+    public function setNom(string $nom): self
+    {
+        $this->nom = $nom;
+        return $this;
+    }
+
+    // Getters et setters pour prenom
+    public function getPrenom(): ?string
+    {
+        return $this->prenom;
+    }
+
+    public function setPrenom(string $prenom): self
+    {
+        $this->prenom = $prenom;
+        return $this;
+    }
+
+    // Getters et setters pour campus
+    public function getCampus(): ?string
+    {
+        return $this->campus;
+    }
+
+    public function setCampus(string $campus): self
+    {
+        $this->campus = $campus;
+        return $this;
     }
 }
