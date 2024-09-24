@@ -23,7 +23,11 @@ security:
             logout:
                 path: logout
                 target: login
-
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800 # Durée d'une semaine
+                path: / # Chemin sur lequel le cookie est valide
+                always_remember_me: false  # N'utilise le remember_me que si la case est cochée
     access_control:
          - { path: ^/login }
          - { path: ^/register }
