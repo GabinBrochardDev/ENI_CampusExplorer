@@ -87,29 +87,34 @@
                         <td class="p-2 text-blue-600 hover:underline">{{ sortie.organisateur.nom }}</td>
                         
                         
-                        <td class="p-2 text-blue-600 hover:underline">
-                           {% if sortie.organisateur == app.user %}
-                                <!-- Bouton Modifier -->
-                                <a href="{{ path('sortie_modifier', {'id': sortie.id}) }}" class="text-blue-600 hover:underline">Modifier</a>
+                       <td class="p-2 text-blue-600 hover:underline">
+    {% if sortie.organisateur == app.user %}
+        {% if sortie.etat.libelle == 'Cloturée' %}
+            <a href="{{ path('sortie_afficher', {'id': sortie.id}) }}" class="text-blue-600 hover:underline">Afficher</a>
+        {% else %}
+            <!-- Bouton Modifier -->
+            <a href="{{ path('sortie_modifier', {'id': sortie.id}) }}" class="text-blue-600 hover:underline">Modifier</a>
 
-                                <!-- Affichage du bouton Supprimer si l'état est "En création" -->
-                                {% if sortie.etat.libelle == 'En creation' %}
-                                    <a href="{{ path('sortie_publier', {'id': sortie.id}) }}" class="text-green-600 hover:underline">Publier</a>
-                                    <a href="{{ path('sortie_supprimer', {'id': sortie.id}) }}" class="text-red-600 hover:underline" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette sortie ?');">Supprimer</a>
-                                <!-- Affichage du bouton Annuler si l'état est "Ouverte" -->
-                                {% elseif sortie.etat.libelle == 'Ouverte' %}
-                                    <a href="{{ path('sortie_annuler', {'id': sortie.id}) }}" class="text-yellow-600 hover:underline" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette sortie ?');">Annuler</a>
-                                {% endif %}
-                            {% endif %}
-                             <a href="{{ path('sortie_afficher', {'id': sortie.id}) }}">Afficher </a>
-                            {% if sortie.organisateur != app.user %}
-                                {% if sortie.getEstInscrit.contains(app.user) %}
-                                    <a href="{{ path('sortie_desister', {'id': sortie.id}) }}">Se désister</a>
-                                {% else %}
-                                    <a href="{{ path('sortie_inscrire', {'id': sortie.id}) }}">S'inscrire</a>
-                                {% endif %}
-                            {% endif %}
-                        </td>
+            <!-- Affichage du bouton Supprimer si l'état est "En création" -->
+            {% if sortie.etat.libelle == 'En creation' %}
+                <a href="{{ path('sortie_publier', {'id': sortie.id}) }}" class="text-green-600 hover:underline">Publier</a>
+                <a href="{{ path('sortie_supprimer', {'id': sortie.id}) }}" class="text-red-600 hover:underline" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette sortie ?');">Supprimer</a>
+            <!-- Affichage du bouton Annuler si l'état est "Ouverte" -->
+            {% elseif sortie.etat.libelle == 'Ouverte' %}
+                <a href="{{ path('sortie_annuler', {'id': sortie.id}) }}" class="text-yellow-600 hover:underline" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette sortie ?');">Annuler</a>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+    
+    {% if sortie.organisateur != app.user %}
+        <a href="{{ path('sortie_afficher', {'id': sortie.id}) }}">Afficher </a>
+        {% if sortie.getEstInscrit.contains(app.user) %}
+            <a href="{{ path('sortie_desister', {'id': sortie.id}) }}">Se désister</a>
+        {% else %}
+            <a href="{{ path('sortie_inscrire', {'id': sortie.id}) }}">S'inscrire</a>
+        {% endif %}
+    {% endif %}
+</td>
 
                         
                     </tr>
