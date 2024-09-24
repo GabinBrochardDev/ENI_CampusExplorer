@@ -14,6 +14,9 @@ class Etat
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+    
+    #[ORM\Column(length: 255)]  // Ajout de la colonne pour stocker le libellé de l'état
+    private ?string $libelle = null;
 
     /**
      * @var Collection<int, Sortie>
@@ -29,6 +32,18 @@ class Etat
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getLibelle(): ?string
+    {
+        return $this->libelle;
+    }
+
+    public function setLibelle(string $libelle): self
+    {
+        $this->libelle = $libelle;
+
+        return $this;
     }
 
     /**
