@@ -37,6 +37,7 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 100)]
     private ?string $lastName = null;
 
+    #[ORM\ManyToOne(targetEntity: Campus::class, inversedBy: 'participants')]
     #[ORM\Column(length: 100)]
     private ?string $campus = null;
 
@@ -132,12 +133,12 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getCampus(): ?string
+    public function getCampus(): ?Campus
     {
         return $this->campus;
     }
 
-    public function setCampus(string $campus): static
+    public function setCampus(?Campus $campus): static
     {
         $this->campus = $campus;
         return $this;
