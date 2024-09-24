@@ -59,7 +59,7 @@
         </div>
         <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded">Rechercher</button>
     </div>
-<div class="container mx-auto p-4">
+
     <!-- Table Section -->
     <div class="mt-4 bg-white p-4 rounded shadow">
         <table class="min-w-full table-auto">
@@ -69,7 +69,7 @@
                     <th class="p-2">Date de la sortie</th>
                     <th class="p-2">Clôture</th>
                     <th class="p-2">Inscrits/Places</th>
-                    <th class="p-2">État</th>
+                    <th class="p-2">Etat</th>
                     <th class="p-2">Inscrit</th>
                     <th class="p-2">Organisateur</th>
                     <th class="p-2">Actions</th>
@@ -83,11 +83,12 @@
                         <td class="p-2">{{ sortie.dateLimiteInscription ? sortie.dateLimiteInscription|date('d/m/Y') : '' }}</td>
                         <td class="p-2">{{ sortie.estinscrit|length }}/{{ sortie.nbInscriptionMax }}</td>
                         <td class="p-2">{{ sortie.etat ? sortie.etat.libelle : '' }}</td>
-                        <td class="p-2">{{ sortie.estinscrit ? 'X' : '' }}</td>
+                        <td class="p-2">{{ sortie.estinscrit.contains(app.user) ? 'X' : '' }}</td>
                         <td class="p-2 text-blue-600 hover:underline">{{ sortie.organisateur.nom }}</td>
-                        <td class="p-2">
-
-                            {% if sortie.organisateur == app.user %}
+                        
+                        
+                        <td class="p-2 text-blue-600 hover:underline">
+                           {% if sortie.organisateur == app.user %}
                                 <!-- Bouton Modifier -->
                                 <a href="{{ path('sortie_modifier', {'id': sortie.id}) }}" class="text-blue-600 hover:underline">Modifier</a>
 
@@ -100,7 +101,17 @@
                                     <a href="{{ path('sortie_annuler', {'id': sortie.id}) }}" class="text-yellow-600 hover:underline" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette sortie ?');">Annuler</a>
                                 {% endif %}
                             {% endif %}
+                             <a href="{{ path('sortie_afficher', {'id': sortie.id}) }}">Afficher </a>
+                            {% if sortie.organisateur != app.user %}
+                                {% if sortie.getEstInscrit.contains(app.user) %}
+                                    <a href="{{ path('sortie_desister', {'id': sortie.id}) }}">Se désister</a>
+                                {% else %}
+                                    <a href="{{ path('sortie_inscrire', {'id': sortie.id}) }}">S'inscrire</a>
+                                {% endif %}
+                            {% endif %}
                         </td>
+
+                        
                     </tr>
                 {% else %}
                     <tr>

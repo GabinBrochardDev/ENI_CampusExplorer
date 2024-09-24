@@ -126,4 +126,42 @@ class SortieController extends AbstractController
             throw $this->createAccessDeniedException('Vous n\'êtes pas autorisé à gérer cette sortie.');
         }
     }
+    #[Route('/sortie/{id}/inscrire', name: 'sortie_inscrire')]
+    public function inscrire(Sortie $sortie, Security $security, EntityManagerInterface $entityManager): Response
+    {
+        $user = $security->getUser();
+        if ($sortie->getOrganisateur() !== $user && !$sortie->getEstInscrit()->contains($user)) {
+            $sortie->addEstInscrit($user);
+            $entityManager->persist($sortie);
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('home', ['id' => $sortie->getId()]);
+    }
+
+    #[Route('/sortie/{id}/desister', name: 'sortie_desister')]
+    public function desister(Sortie $sortie, Security $security, EntityManagerInterface $entityManager): Response
+    {
+        $user = $security->getUser();
+        if ($sortie->getEstInscrit()->contains($user)) {
+            $sortie->removeEstInscrit($user);
+            $entityManager->persist($sortie);
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('home', ['id' => $sortie->getId()]);
+    }
+
+    #[Route('/sortie/{id}/afficher', name: 'sortie_afficher')]
+    public function afficher(Sortie $sortie): Response
+    {
+        // Récupérer les personnes inscrites à la sortie
+        $inscrits = $sortie->getEstInscrit();
+
+        return $this->render('sortie/afficher.html.twig', [
+            'sortie' => $sortie,
+            'inscrits' => $inscrits,
+        ]);
+    }
+   
 }
