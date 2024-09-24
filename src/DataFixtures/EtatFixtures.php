@@ -12,6 +12,7 @@ class EtatFixtures extends Fixture
     {
         // Les valeurs à insérer dans l'entité Etat
         $etats = [
+            'En création',
             'Ouverte',
             'Clôturée',
             'En cours',
