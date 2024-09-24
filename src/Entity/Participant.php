@@ -34,12 +34,8 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 100)]
     private ?string $prenom = null;
 
-    #[ORM\Column(length: 100)]
-    private ?string $lastName = null;
-
     #[ORM\ManyToOne(targetEntity: Campus::class, inversedBy: 'participants')]
-    #[ORM\Column(length: 100)]
-    private ?string $campus = null;
+    private ?Campus $campus = null;
 
     // Implement the necessary methods from UserInterface and PasswordAuthenticatedUserInterface
     public function getPassword(): ?string
@@ -66,12 +62,12 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
         return (string) $this->nom;
     }
 
-    public function getnom(): ?string
+    public function getNom(): ?string
     {
         return $this->nom;
     }
     
-    public function setnom(string $nom): self
+    public function setNom(string $nom): self
     {
         $this->nom = $nom;
     
@@ -100,25 +96,14 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getprenom(): ?string
+    public function getPrenom(): ?string
     {
         return $this->prenom;
     }
 
-    public function setprenom(string $prenom): static
+    public function setPrenom(string $prenom): static
     {
         $this->prenom = $prenom;
-        return $this;
-    }
-
-    public function getLastName(): ?string
-    {
-        return $this->lastName;
-    }
-
-    public function setLastName(string $lastName): static
-    {
-        $this->lastName = $lastName;
         return $this;
     }
 

@@ -7,3 +7,12 @@ app_profile:
     path: /profile
     controller: App\Controller\ProfileController::editProfile
     methods: [GET, POST]
+app_participants:
+    path: /participants
+    controller: App\Controller\ParticipantController::index
+    methods: [GET]
+
+app_participant_detail:
+    path: /participants/{id}
+    controller: App\Controller\ParticipantController::show
+    methods: [GET]
