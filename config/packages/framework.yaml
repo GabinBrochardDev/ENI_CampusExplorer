@@ -11,6 +11,9 @@ framework:
         handler_id: null
         cookie_secure: auto
         cookie_samesite: lax
+        cookie_lifetime: 0 # Le cookie de session dure jusqu'à la fermeture du navigateur
+        gc_maxlifetime: 604800 # Durée de vie de la session côté serveur (7 jours)
+
 
     #esi: true
     #fragments: true
