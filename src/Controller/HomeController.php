@@ -25,7 +25,7 @@ class HomeController extends AbstractController
         // Passer les campus à la vue
         return $this->render('home/index.html.twig', [
             'sorties' => $sorties,
-            'campus' => $campus,
+            'campuses' => $campus,
         ]);
     }
 }
