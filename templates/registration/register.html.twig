@@ -12,6 +12,12 @@
         {{ form_start(registrationForm, {'attr': {'class': 'space-y-4'}}) }}
 
             <div class="space-y-2">
+                {{ form_label(registrationForm.pseudo, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                {{ form_widget(registrationForm.pseudo, {'attr': {'class': 'mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm'}}) }}
+                {{ form_errors(registrationForm.pseudo, {'attr': {'class': 'text-red-500 text-sm'}}) }}
+            </div>
+
+            <div class="space-y-2">
                 {{ form_label(registrationForm.email, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
                 {{ form_widget(registrationForm.email, {'attr': {'class': 'mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm'}}) }}
                 {{ form_errors(registrationForm.email, {'attr': {'class': 'text-red-500 text-sm'}}) }}
