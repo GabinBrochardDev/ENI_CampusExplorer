@@ -104,6 +104,16 @@
         {% else %}
             <!-- Bouton Modifier -->
             <a href="{{ path('sortie_modifier', {'id': sortie.id}) }}" class="text-blue-600 hover:underline">Modifier</a>
+                          <td class="p-2 text-blue-600 hover:underline">
+                        <a href="{{ path('app_participant_detail', {'id': sortie.organisateur.id}) }}">{{ sortie.organisateur.nom }}</a>
+                    </td>
+                        <td class="p-2 text-blue-600 hover:underline">
+                            {% if sortie.organisateur == app.user %}
+                                {% if sortie.etat.libelle == 'Cloturée' %}
+                                    <a href="{{ path('sortie_afficher', {'id': sortie.id}) }}" class="text-blue-600 hover:underline">Afficher</a>
+                                {% else %}
+                                    <!-- Bouton Modifier -->
+                                    <a href="{{ path('sortie_modifier', {'id': sortie.id}) }}" class="text-blue-600 hover:underline">Modifier</a>
 
             <!-- Affichage du bouton Supprimer si l'état est "En création" -->
             {% if sortie.etat.libelle == 'En création' %}
@@ -125,8 +135,7 @@
         {% endif %}
     {% endif %}
 </td>
-
-                        
+               
                     </tr>
                 {% else %}
                     <tr>
