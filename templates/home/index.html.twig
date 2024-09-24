@@ -11,53 +11,63 @@
         <span>Le lien Administration est accessible uniquement en tant qu'administrateur</span>
         <div class="text-right">
             <p>Date du jour : {{ "now"|date("d/m/Y") }}</p>
-            <p>Participant : Jeanine L.</p>
+            <p>Participant : {{ user.prenom }} {{ user.nom|upper }}</p>
         </div>
     </div>
 
     <!-- Filter Section -->
     <div class="mt-4 p-4 bg-white rounded shadow">
         <h2 class="font-bold mb-2">Filtrer les sorties</h2>
-        <div class="flex space-x-4">
-            <div class="flex flex-col">
-                <label for="campus" class="font-semibold">Campus</label>
-                <select id="campus" class="border border-gray-300 p-2 rounded">
-                    <option>CHARTRES DE BRETAGNE</option>
-                    <!-- Ajouter d'autres options ici -->
-                </select>
-            </div>
-            <div class="flex flex-col flex-grow">
-                <label for="search" class="font-semibold">Le nom de la sortie contient</label>
-                <input type="text" id="search" class="border border-gray-300 p-2 rounded" placeholder="search">
-            </div>
-            <div class="flex flex-col">
-                <label class="font-semibold">Entre</label>
-                <div class="flex space-x-2">
-                    <input type="date" class="border border-gray-300 p-2 rounded">
-                    <span>et</span>
-                    <input type="date" class="border border-gray-300 p-2 rounded">
+        <form method="get" action="{{ path('home') }}">
+            <div class="flex space-x-4">
+                <div class="flex flex-col">
+                    <label for="campus" class="font-semibold">Campus</label>
+                    <select id="campus" name="campus" class="border border-gray-300 p-2 rounded">
+                        <option value="">Tous</option>
+                        {% for campus in campuses %}
+                            <option value="{{ campus.id }}" {{ campus.id == app.request.get('campus') ? 'selected' : '' }}>
+                                {{ campus.nom }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="flex flex-col flex-grow">
+                    <label for="search" class="font-semibold">Le nom de la sortie contient</label>
+                    <input type="text" id="search" name="search" class="border border-gray-300 p-2 rounded" value="{{ app.request.get('search') }}">
+                </div>
+
+                <div class="flex flex-col">
+                    <label class="font-semibold">Entre</label>
+                    <div class="flex space-x-2">
+                        <input type="date" name="start_date" class="border border-gray-300 p-2 rounded" value="{{ app.request.get('start_date') }}">
+                        <span>et</span>
+                        <input type="date" name="end_date" class="border border-gray-300 p-2 rounded" value="{{ app.request.get('end_date') }}">
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="flex space-x-4 mt-4">
-            <div class="flex items-center space-x-2">
-                <input type="checkbox" id="organisateur">
-                <label for="organisateur">Sorties dont je suis l'organisateur/trice</label>
+
+            <div class="flex space-x-4 mt-4">
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" id="organisateur" name="organisateur" {{ app.request.get('organisateur') ? 'checked' : '' }}>
+                    <label for="organisateur">Sorties dont je suis l'organisateur/trice</label>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" id="inscrit" name="inscrit" {{ app.request.get('inscrit') ? 'checked' : '' }}>
+                    <label for="inscrit">Sorties auxquelles je suis inscrit/e</label>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" id="non-inscrit" name="non-inscrit" {{ app.request.get('non-inscrit') ? 'checked' : '' }}>
+                    <label for="non-inscrit">Sorties auxquelles je ne suis pas inscrit/e</label>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" id="terminees" name="terminees" {{ app.request.get('terminees') ? 'checked' : '' }}>
+                    <label for="terminees">Sorties terminées</label>
+                </div>
             </div>
-            <div class="flex items-center space-x-2">
-                <input type="checkbox" id="inscrit">
-                <label for="inscrit">Sorties auxquelles je suis inscrit/e</label>
-            </div>
-            <div class="flex items-center space-x-2">
-                <input type="checkbox" id="non-inscrit">
-                <label for="non-inscrit">Sorties auxquelles je ne suis pas inscrit/e</label>
-            </div>
-            <div class="flex items-center space-x-2">
-                <input type="checkbox" id="terminees">
-                <label for="terminees">Sorties terminées</label>
-            </div>
-        </div>
-        <button class="mt-4 bg-blue-600 text-white px-4 py-2 rounded">Rechercher</button>
+            
+            <button type="submit" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded">Rechercher</button>
+        </form>
     </div>
 
     <!-- Table Section -->
