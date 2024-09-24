@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class HomeController extends AbstractController
 {
     #[Route('/', name: 'home')]
-    public function index(SortieRepository $sortieRepository): Response
+    public function index(SortieRepository $sortieRepository, CampusRepository $campusRepository ): Response
     {
         // Récupérer toutes les sorties
         $sorties = $sortieRepository->findAll();

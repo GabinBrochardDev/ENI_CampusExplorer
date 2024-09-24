@@ -81,9 +81,9 @@
                         <td class="p-2">{{ sortie.nom }}</td>
                         <td class="p-2">{{ sortie.dateHeureDebut ? sortie.dateHeureDebut|date('d/m/Y') : '' }}</td>
                         <td class="p-2">{{ sortie.dateLimiteInscription ? sortie.dateLimiteInscription|date('d/m/Y') : '' }}</td>
-                        <td class="p-2">{{ sortie.inscriptions|length }}/{{ sortie.nbInscriptionMax }}</td>
+                        <td class="p-2">{{ sortie.estinscrit|length }}/{{ sortie.nbInscriptionMax }}</td>
                         <td class="p-2">{{ sortie.etat ? sortie.etat.libelle : '' }}</td>
-                        <td class="p-2">{{ sortie.inscrit ? 'X' : '' }}</td>
+                        <td class="p-2">{{ sortie.estinscrit ? 'X' : '' }}</td>
                         <td class="p-2 text-blue-600 hover:underline">{{ sortie.organisateur.nom }}</td>
                         <td class="p-2 text-blue-600 hover:underline"><a href="{{ path('sortie_show', {'id': sortie.id}) }}">Afficher</a></td>
                     </tr>
