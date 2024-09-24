@@ -45,6 +45,7 @@ class HomeController extends AbstractController
         return $this->render('home/index.html.twig', [
             'sorties' => $sorties,
             'campuses' => $campus,
+            'user' => $this->getUser(),
         ]);
     }
 }
