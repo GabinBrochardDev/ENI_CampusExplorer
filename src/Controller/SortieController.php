@@ -3,10 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Sortie;
-use App\Entity\Etat;
 use App\Form\SortieType;
 use App\Repository\EtatRepository;
-use App\Repository\CampusRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,57 +15,115 @@ use Symfony\Component\Security\Core\Security;
 class SortieController extends AbstractController
 {
     #[Route('/sortie/create', name: 'sortie_create')]
-    public function create(
-        Request $request, 
-        EntityManagerInterface $entityManager, 
-        EtatRepository $etatRepository, 
-        CampusRepository $campusRepository, 
-        Security $security // Injection du service Security pour récupérer l'utilisateur connecté
-    ): Response {
+    public function create(Request $request, EntityManagerInterface $entityManager, EtatRepository $etatRepository, Security $security): Response
+    {
         $sortie = new Sortie();
 
-        // Récupérer l'utilisateur connecté pour le définir comme organisateur
+        // Récupérer l'utilisateur connecté pour l'organisateur
         $organisateur = $security->getUser();
+        $sortie->setOrganisateur($organisateur);
 
-        // Récupérer la liste des campus (si nécessaire)
-        $campusList = $campusRepository->findAll();
-
-        // Créer le formulaire pour la sortie
+        // Création du formulaire
         $form = $this->createForm(SortieType::class, $sortie);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Déterminer l'état en fonction de l'action
+            // Définir l'état de la sortie selon l'action
             $action = $request->request->get('action');
             if ($action === 'publish') {
-                $etat = $etatRepository->findOneBy(['libelle' => 'Ouverte']);
+                $etatOuverte = $etatRepository->findOneBy(['libelle' => 'Ouverte']);
+                $sortie->setEtat($etatOuverte);
             } else {
-                $etat = $etatRepository->findOneBy(['libelle' => 'En création']);
+                $etatCreation = $etatRepository->findOneBy(['libelle' => 'En création']);
+                $sortie->setEtat($etatCreation);
             }
-
-            // Associer l'état et l'organisateur à la sortie
-            $sortie->setEtat($etat);
-            $sortie->setOrganisateur($organisateur);  // Organisateur défini comme l'utilisateur connecté
 
             // Sauvegarder la sortie
             $entityManager->persist($sortie);
             $entityManager->flush();
 
-            return $this->redirectToRoute('home');  // Redirection vers la liste des sorties
+            // Message de confirmation et redirection
+            $this->addFlash('success', 'La sortie a été créée avec succès.');
+            return $this->redirectToRoute('home');
         }
 
         return $this->render('sortie/create.html.twig', [
             'form' => $form->createView(),
-            'campusList' => $campusList,  // Passer la liste des campus à la vue Twig
         ]);
     }
 
-    #[Route('/sortie/{id}', name: 'sortie_show')]
-    public function show(Sortie $sortie): Response
+    #[Route('/sortie/publier/{id}', name: 'sortie_publier')]
+    public function publier(Sortie $sortie, EntityManagerInterface $entityManager, EtatRepository $etatRepository, Security $security): Response
     {
-        // Afficher les détails de la sortie, y compris les participants inscrits
-        return $this->render('sortie/show.html.twig', [
-            'sortie' => $sortie,
+        $this->checkIfOrganisateur($sortie, $security);
+
+        // Passer l'état à "Ouverte"
+        $etatOuverte = $etatRepository->findOneBy(['libelle' => 'Ouverte']);
+        $sortie->setEtat($etatOuverte);
+
+        // Enregistrer les changements
+        $entityManager->persist($sortie);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'La sortie a été publiée avec succès.');
+        return $this->redirectToRoute('home');
+    }
+
+    #[Route('/sortie/modifier/{id}', name: 'sortie_modifier')]
+    public function modifier(Sortie $sortie, Request $request, EntityManagerInterface $entityManager, Security $security): Response
+    {
+        $this->checkIfOrganisateur($sortie, $security);
+
+        $form = $this->createForm(SortieType::class, $sortie);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+            $this->addFlash('success', 'La sortie a été modifiée avec succès.');
+            return $this->redirectToRoute('home');
+        }
+
+        return $this->render('sortie/modifier.html.twig', [
+            'form' => $form->createView(),
+            'sortie' => $sortie
         ]);
+    }
+
+    #[Route('/sortie/supprimer/{id}', name: 'sortie_supprimer')]
+    public function supprimer(Sortie $sortie, EntityManagerInterface $entityManager, Security $security): Response
+    {
+        $this->checkIfOrganisateur($sortie, $security);
+
+        // Supprimer la sortie
+        $entityManager->remove($sortie);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'La sortie a été supprimée avec succès.');
+        return $this->redirectToRoute('home');
+    }
+
+    #[Route('/sortie/annuler/{id}', name: 'sortie_annuler')]
+    public function annuler(Sortie $sortie, EntityManagerInterface $entityManager, EtatRepository $etatRepository, Security $security): Response
+    {
+        $this->checkIfOrganisateur($sortie, $security);
+
+        // Passer l'état de la sortie à "Clôturée"
+        $etatCloturee = $etatRepository->findOneBy(['libelle' => 'Clôturée']);
+        $sortie->setEtat($etatCloturee);
+
+        // Enregistrer les changements
+        $entityManager->persist($sortie);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'La sortie a été annulée et est désormais clôturée.');
+
+        return $this->redirectToRoute('home');
+    }
+
+    private function checkIfOrganisateur(Sortie $sortie, Security $security): void
+    {
+        if ($sortie->getOrganisateur() !== $security->getUser()) {
+            throw $this->createAccessDeniedException('Vous n\'êtes pas autorisé à gérer cette sortie.');
+        }
     }
 }
