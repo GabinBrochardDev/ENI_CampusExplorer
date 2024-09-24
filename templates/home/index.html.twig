@@ -99,14 +99,14 @@
                         
                        <td class="p-2 text-blue-600 hover:underline">
     {% if sortie.organisateur == app.user %}
-        {% if sortie.etat.libelle == 'Cloturée' %}
+        {% if sortie.etat.libelle == 'Clôturée' %}
             <a href="{{ path('sortie_afficher', {'id': sortie.id}) }}" class="text-blue-600 hover:underline">Afficher</a>
         {% else %}
             <!-- Bouton Modifier -->
             <a href="{{ path('sortie_modifier', {'id': sortie.id}) }}" class="text-blue-600 hover:underline">Modifier</a>
 
             <!-- Affichage du bouton Supprimer si l'état est "En création" -->
-            {% if sortie.etat.libelle == 'En creation' %}
+            {% if sortie.etat.libelle == 'En création' %}
                 <a href="{{ path('sortie_publier', {'id': sortie.id}) }}" class="text-green-600 hover:underline">Publier</a>
                 <a href="{{ path('sortie_supprimer', {'id': sortie.id}) }}" class="text-red-600 hover:underline" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette sortie ?');">Supprimer</a>
             <!-- Affichage du bouton Annuler si l'état est "Ouverte" -->
