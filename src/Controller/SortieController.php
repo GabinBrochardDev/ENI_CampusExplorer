@@ -127,30 +127,65 @@ class SortieController extends AbstractController
         }
     }
     #[Route('/sortie/{id}/inscrire', name: 'sortie_inscrire')]
-    public function inscrire(Sortie $sortie, Security $security, EntityManagerInterface $entityManager): Response
-    {
-        $user = $security->getUser();
-        if ($sortie->getOrganisateur() !== $user && !$sortie->getEstInscrit()->contains($user)) {
-            $sortie->addEstInscrit($user);
+public function inscrire(Sortie $sortie, Security $security, EntityManagerInterface $entityManager, EtatRepository $etatRepository): Response
+{
+    $user = $security->getUser();
+    $now = new \DateTime();
+    
+    // Vérifier si la date limite d'inscription est dépassée
+    if ($sortie->getDateLimiteInscription() < $now) {
+        $etatCloturee = $etatRepository->findOneBy(['libelle' => 'Clôturée']);
+        $sortie->setEtat($etatCloturee);
+        $entityManager->persist($sortie);
+        $entityManager->flush();
+    }
+
+    // Vérifier si la date de la sortie est dépassée d'un mois
+    $oneMonthAfter = (clone $sortie->getDateHeureDebut())->modify('+1 month');
+    if ($now > $oneMonthAfter) {
+        $etatHistorisee = $etatRepository->findOneBy(['libelle' => 'Historisée']);
+        $sortie->setEtat($etatHistorisee);
+        $entityManager->persist($sortie);
+        $entityManager->flush();
+    }
+
+    if ($sortie->getEtat()->getLibelle() === 'Ouverte' && $sortie->getOrganisateur() !== $user && !$sortie->getEstInscrit()->contains($user)) {
+        $sortie->addEstInscrit($user);
+        $entityManager->persist($sortie);
+        $entityManager->flush();
+
+        // Vérifier si le nombre de participants atteint le maximum
+        if ($sortie->getEstInscrit()->count() >= $sortie->getNbInscriptionMax()) {
+            $etatCloturee = $etatRepository->findOneBy(['libelle' => 'Clôturée']);
+            $sortie->setEtat($etatCloturee);
             $entityManager->persist($sortie);
             $entityManager->flush();
         }
-
-        return $this->redirectToRoute('home', ['id' => $sortie->getId()]);
     }
 
-    #[Route('/sortie/{id}/desister', name: 'sortie_desister')]
-    public function desister(Sortie $sortie, Security $security, EntityManagerInterface $entityManager): Response
-    {
-        $user = $security->getUser();
-        if ($sortie->getEstInscrit()->contains($user)) {
-            $sortie->removeEstInscrit($user);
+    return $this->redirectToRoute('home', ['id' => $sortie->getId()]);
+}
+
+#[Route('/sortie/{id}/desister', name: 'sortie_desister')]
+public function desister(Sortie $sortie, Security $security, EntityManagerInterface $entityManager, EtatRepository $etatRepository): Response
+{
+    $user = $security->getUser();
+    if ($sortie->getEstInscrit()->contains($user)) {
+        $sortie->removeEstInscrit($user);
+        $entityManager->persist($sortie);
+        $entityManager->flush();
+
+        // Vérifier si le nombre de participants est inférieur au maximum
+        if ($sortie->getEstInscrit()->count() < $sortie->getNbInscriptionMax()) {
+            $etatOuverte = $etatRepository->findOneBy(['libelle' => 'Ouverte']);
+            $sortie->setEtat($etatOuverte);
             $entityManager->persist($sortie);
             $entityManager->flush();
         }
-
-        return $this->redirectToRoute('home', ['id' => $sortie->getId()]);
     }
+
+    return $this->redirectToRoute('home', ['id' => $sortie->getId()]);
+}
 
     #[Route('/sortie/{id}/afficher', name: 'sortie_afficher')]
     public function afficher(Sortie $sortie): Response
