@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -11,6 +12,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use App\Entity\Participant;
+use App\Entity\Campus;
 use Symfony\Component\Form\Extension\Core\Type\TelType;
 
 class RegistrationFormType extends AbstractType
@@ -25,11 +27,18 @@ class RegistrationFormType extends AbstractType
                 ],
             ])
             ->add('nom', null, [
-                'label' => 'Pseudo',
+                'label' => 'Nom',
                 'constraints' => [
-                    new NotBlank(['message' => 'Veuillez entrer un pseudonyme']),
+                    new NotBlank(['message' => 'Veuillez entrer un Nom']),
                 ],
             ])
+            ->add('prenom', TextType::class, [
+                'label' => 'Prénom',
+                'constraints' => [
+                    new NotBlank(['message' => 'Veuillez entrer un prénom']),
+                ],
+            ])
+
             ->add('plainPassword', PasswordType::class, [
                 'label' => 'Mot de passe',
                 'mapped' => false,
@@ -42,26 +51,17 @@ class RegistrationFormType extends AbstractType
                     ]),
                 ],
             ])
-            ->add('prenom', TextType::class, [
-                'label' => 'Prénom',
-                'constraints' => [
-                    new NotBlank(['message' => 'Veuillez entrer un prénom']),
-                ],
-            ])
-            ->add('lastName', TextType::class, [
-                'label' => 'Nom de famille',
-                'constraints' => [
-                    new NotBlank(['message' => 'Veuillez entrer un nom de famille']),
-                ],
-            ])
+  
             ->add('telephone', TelType::class, [
                 'label' => 'Téléphone',
                 'required' => false,
-            ])  // Add this to handle the telephone field
-            ->add('campus', TextType::class, [
+            ])
+            ->add('campus', EntityType::class, [
+                'class' => Campus::class,
+                'choice_label' => 'nom',
                 'label' => 'Campus',
                 'constraints' => [
-                    new NotBlank(['message' => 'Veuillez entrer un campus']),
+                    new NotBlank(['message' => 'Veuillez sélectionner un campus']),
                 ],
             ]);
     }
