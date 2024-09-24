@@ -20,8 +20,8 @@ class Sortie
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $dateHeureDebut = null;
 
-    #[ORM\Column(type: Types::TIME_MUTABLE)]
-    private ?\DateTimeInterface $duree = null;
+    #[ORM\Column(type: Types::INTEGER)]  // Modifié pour représenter la durée en minutes
+    private ?int $duree = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $dateLimiteInscription = null;
@@ -42,6 +42,8 @@ class Sortie
 
     #[ORM\ManyToOne(inversedBy: 'sorties')]
     private ?Lieu $lieu = null;
+
+    // Getters et setters
 
     public function getId(): ?int
     {
@@ -72,12 +74,12 @@ class Sortie
         return $this;
     }
 
-    public function getDuree(): ?\DateTimeInterface
+    public function getDuree(): ?int  // Modifié pour retourner un entier
     {
         return $this->duree;
     }
 
-    public function setDuree(\DateTimeInterface $duree): static
+    public function setDuree(int $duree): static  // Modifié pour accepter un entier
     {
         $this->duree = $duree;
 
