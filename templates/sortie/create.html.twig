@@ -23,6 +23,7 @@
             <div>
                 {{ form_row(form.nom, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
                 {{ form_row(form.dateHeureDebut, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
+                {{ form_row(form.dateLimiteInscription, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'id': 'dateLimiteInscription'}}) }}
                 {{ form_row(form.nbInscriptionMax, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
                 {{ form_row(form.duree, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
                 {{ form_row(form.infosSortie, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'rows': 5}}) }}
@@ -32,10 +33,10 @@
                 {{ form_row(form.campus, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
                 
                 {# Sélection de la ville #}
-                {{ form_row(form.ville, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
+                {{ form_row(form.ville, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'onchange': 'filterLieuxByVille(this)'}}) }}
 
-                {# Sélection du lieu, qui sera mis à jour par le JavaScript #}
-                {{ form_row(form.lieu, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
+                {# Sélection du lieu, qui sera désactivé tant qu'aucune ville n'est sélectionnée #}
+                {{ form_row(form.lieu, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'disabled': 'disabled'}}) }}
 
                 <div id="lieuInfo" class="mt-4 bg-gray-100 p-4 rounded-lg">
                     {% if form.vars.value.lieu %}
@@ -64,11 +65,15 @@
 </div>
 
 <script>
+    // Désactiver le champ Lieu au chargement de la page
+    document.getElementById('{{ form.lieu.vars.id }}').disabled = true;
+
     function filterLieuxByVille(select) {
         var villeId = select.value;
         var lieuSelect = document.getElementById('{{ form.lieu.vars.id }}');
-        
+
         if (villeId) {
+            lieuSelect.disabled = false; // Activer le champ Lieu
             fetch('{{ path('fetch_lieux_by_ville') }}', {
                 method: 'POST',
                 headers: {
@@ -90,6 +95,7 @@
             })
             .catch(error => console.error('Erreur lors de la récupération des lieux:', error));
         } else {
+            lieuSelect.disabled = true; // Réactiver la désactivation si aucune ville n'est sélectionnée
             lieuSelect.innerHTML = '<option value="">Sélectionnez une ville d\'abord</option>';
         }
     }
