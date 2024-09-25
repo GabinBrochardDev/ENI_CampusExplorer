@@ -3,44 +3,58 @@
 {% block title %}Gérer les utilisateurs{% endblock %}
 
 {% block body %}
-    <h1 class="text-3xl font-bold mb-6 text-center">Gérer les utilisateurs</h1>
+    <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Gérer les utilisateurs</h1>
 
     <!-- Formulaire de recherche -->
-    <div class="flex justify-center mb-6">
-        {{ form_start(form, { 'attr': { 'class': 'flex items-center w-full max-w-xl' } }) }}
-        {{ form_widget(form.nom, { 'attr': { 'class': 'w-full p-3 rounded-md border-gray-300', 'placeholder': 'Rechercher par nom' } }) }}
-        <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-md ml-2">Rechercher</button>
+    <div class="flex justify-center mb-8">
+        {{ form_start(form, { 'attr': { 'class': 'flex items-center w-full max-w-3xl' } }) }}
+        <div class="flex w-full">
+            {{ form_widget(form.nom, { 'attr': { 
+                'class': 'w-full p-3 rounded-l-md border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:outline-none transition duration-300', 
+                'placeholder': 'Rechercher par nom' 
+            } }) }}
+            <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 transition duration-300">Rechercher</button>
+        </div>
         {{ form_end(form) }}
     </div>
 
     <!-- Tableau des utilisateurs -->
-    <table class="table-auto w-full border text-center">
-        <thead>
-            <tr>
-                <th class="px-4 py-2">Nom</th>
-                <th class="px-4 py-2">Prénom</th>
-                <th class="px-4 py-2">Email</th>
-                <th class="px-4 py-2">Campus</th>
-                <th class="px-4 py-2">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in users %}
-                <tr>
-                    <td class="px-4 py-2">{{ user.nom }}</td>
-                    <td class="px-4 py-2">{{ user.prenom }}</td>
-                    <td class="px-4 py-2">{{ user.email }}</td>
-                    <td class="px-4 py-2">{{ user.campus.nom }}</td>
-                    <td class="px-4 py-2">
-                        <a href="{{ path('admin_edit_user', {id: user.id}) }}" class="text-blue-600">Modifier</a>
-                        <a href="{{ path('admin_delete_user', {id: user.id}) }}" class="text-red-600 ml-4">Supprimer</a>
-                    </td>
+    <div class="overflow-x-auto max-w-5xl mx-auto">
+        <table class="table-auto w-full border border-gray-300 shadow-lg rounded-lg">
+            <thead class="bg-gray-100">
+                <tr class="text-left text-gray-700">
+                    <th class="px-6 py-3">Nom</th>
+                    <th class="px-6 py-3">Prénom</th>
+                    <th class="px-6 py-3">Email</th>
+                    <th class="px-6 py-3">Campus</th>
+                    <th class="px-6 py-3 text-center">Actions</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr class="border-t hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 text-gray-800">{{ user.nom }}</td>
+                        <td class="px-6 py-4 text-gray-800">{{ user.prenom }}</td>
+                        <td class="px-6 py-4 text-gray-800">{{ user.email }}</td>
+                        <td class="px-6 py-4 text-gray-800">{{ user.campus.nom }}</td>
+                        <td class="px-6 py-4 text-center">
+                            <a href="{{ path('admin_edit_user', {id: user.id}) }}" class="text-blue-600 hover:text-blue-800 transition-colors">Modifier</a>
+                            <a href="{{ path('admin_delete_user', {id: user.id}) }}" class="text-red-600 hover:text-red-800 transition-colors ml-4">Supprimer</a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-gray-600 py-4">Aucun utilisateur trouvé.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-    <div class="text-center mt-6">
-        <a href="{{ path('admin_add_user') }}" class="text-blue-600 hover:underline">Ajouter un utilisateur</a>
+    <!-- Bouton d'ajout d'utilisateur -->
+    <div class="text-center mt-8">
+        <a href="{{ path('admin_add_user') }}" class="bg-blue-600 text-white px-6 py-3 rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 transition duration-300">
+            Ajouter un utilisateur
+        </a>
     </div>
 {% endblock %}
