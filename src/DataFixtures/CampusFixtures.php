@@ -12,7 +12,7 @@ class CampusFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        $nomsCampus = ['Nantes', 'Rennes', 'Quimper', 'Niort'];
+        $nomsCampus = ['ENI Nantes', 'ENI Rennes', 'ENI Quimper', 'ENI Niort'];
 
         foreach ($nomsCampus as $index => $nom) {
             $campus = new Campus();
