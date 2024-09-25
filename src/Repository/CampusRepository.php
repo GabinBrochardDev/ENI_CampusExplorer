@@ -16,6 +16,24 @@ class CampusRepository extends ServiceEntityRepository
         parent::__construct($registry, Campus::class);
     }
 
+     /**
+     * Recherche les campus dont le nom contient le terme donné
+     *
+     * @param string|null $nom
+     * @return Campus[]
+     */
+    public function findByNomLike(?string $nom): array
+    {
+        $qb = $this->createQueryBuilder('c');
+
+        if ($nom) {
+            $qb->andWhere('c.nom LIKE :nom')
+               ->setParameter('nom', '%' . $nom . '%');
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
 //    /**
 //     * @return Campus[] Returns an array of Campus objects
 //     */

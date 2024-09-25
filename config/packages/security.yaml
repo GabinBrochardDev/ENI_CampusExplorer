@@ -33,3 +33,4 @@ security:
          - { path: ^/register }
          - { path: ^/home, roles: ROLE_USER } # Seuls les utilisateurs connectés peuvent accéder à /home
          - { path: ^/, roles: ROLE_USER } # Par défaut, toutes les autres routes sont protégées
+         - { path: ^/admin, roles: ROLE_ADMIN }

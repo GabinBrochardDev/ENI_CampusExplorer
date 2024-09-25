@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter une ville{% endblock %}
+
+{% block body %}
+    <h1 class="text-3xl font-bold mb-6 text-center">Ajouter une ville</h1>
+
+    <div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg">
+        {{ form_start(form) }}
+        
+        <!-- Champ Nom -->
+        <div class="mb-4">
+            {{ form_row(form.nom, { 'attr': { 
+                'class': 'w-full p-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:outline-none transition duration-300', 
+                'placeholder': 'Nom de la ville' 
+            } }) }}
+        </div>
+
+        <!-- Champ Code Postal -->
+        <div class="mb-4">
+            {{ form_row(form.codePostal, { 'attr': { 
+                'class': 'w-full p-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:outline-none transition duration-300', 
+                'placeholder': 'Code postal' 
+            } }) }}
+        </div>
+
+        <!-- Bouton Ajouter -->
+        <div class="text-center">
+            <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-full shadow-md hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 transition duration-300">Ajouter</button>
+        </div>
+        
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

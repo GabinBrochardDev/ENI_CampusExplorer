@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Page d'administration{% endblock %}
+
+{% block body %}
+    <div class="text-center my-10">
+        <h1 class="text-3xl font-bold mb-6">Page d'administration</h1>
+        
+        <!-- Container for buttons -->
+        <div class="flex justify-center space-x-6">
+            <!-- Bouton Gérer les campus -->
+            <a href="{{ path('admin_manage_campus') }}" class="border border-black px-6 py-2 rounded-md hover:bg-gray-200">
+                Gérer les campus
+            </a>
+
+            <!-- Bouton Gérer les villes -->
+            <a href="{{ path('admin_manage_villes') }}" class="border border-black px-6 py-2 rounded-md hover:bg-gray-200">
+                Gérer les villes
+            </a>
+
+            <!-- Bouton Gérer les utilisateurs -->
+            <a href="{{ path('admin_manage_users') }}" class="border border-black px-6 py-2 rounded-md hover:bg-gray-200">
+                Gérer les utilisateurs
+            </a>
+        </div>
+    </div>
+{% endblock %}

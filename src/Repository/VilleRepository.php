@@ -15,6 +15,23 @@ class VilleRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Ville::class);
     }
+    /**
+     * Recherche les villes dont le nom contient le terme donné
+     *
+     * @param string|null $nom
+     * @return Ville[]
+     */
+    public function findByNomLike(?string $nom): array
+    {
+        $qb = $this->createQueryBuilder('v');
+
+        if ($nom) {
+            $qb->andWhere('v.nom LIKE :nom')
+               ->setParameter('nom', '%' . $nom . '%');
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 
     //    /**
     //     * @return Ville[] Returns an array of Ville objects

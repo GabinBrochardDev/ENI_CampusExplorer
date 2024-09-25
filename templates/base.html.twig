@@ -16,6 +16,10 @@
             <h1 class="ml-4 text-2xl font-bold">Sortir.com</h1>
         </div>
         <div class="flex space-x-4 text-blue-600">
+            <!-- Lien vers l'administration visible seulement pour les admins -->
+            {% if is_granted('ROLE_ADMIN') %}
+                <a href="{{ path('admin_dashboard') }}" class="hover:underline">Administrateur</a>
+            {% endif %}
             {% if app.user %}
                 <!-- Liens visibles lorsque l'utilisateur est connecté -->
                 <a href="{{ path('home') }}" class="hover:underline">Accueil</a>

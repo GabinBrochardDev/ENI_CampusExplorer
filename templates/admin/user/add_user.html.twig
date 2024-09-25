@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter un utilisateur{% endblock %}
+
+{% block body %}
+    <h1 class="text-3xl font-bold mb-6 text-center">Ajouter un utilisateur</h1>
+
+    <div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg">
+        {{ form_start(form) }}
+
+        <!-- Champ Nom -->
+        <div class="mb-4">
+            {{ form_row(form.nom, { 'attr': { 
+                'class': 'w-full p-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:outline-none transition duration-300', 
+                'placeholder': 'Nom' 
+            } }) }}
+        </div>
+
+        <!-- Champ Prénom -->
+        <div class="mb-4">
+            {{ form_row(form.prenom, { 'attr': { 
+                'class': 'w-full p-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:outline-none transition duration-300', 
+                'placeholder': 'Prénom' 
+            } }) }}
+        </div>
+
+        <!-- Champ Mot de passe -->
+        <div class="mb-4">
+            {{ form_row(form.password, { 'attr': { 
+                'class': 'w-full p-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:outline-none transition duration-300', 
+                'placeholder': 'Mot de passe' 
+            } }) }}
+        </div>
+
+        <!-- Champ Email -->
+        <div class="mb-4">
+            {{ form_row(form.email, { 'attr': { 
+                'class': 'w-full p-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:outline-none transition duration-300', 
+                'placeholder': 'Email' 
+            } }) }}
+        </div>
+
+        <!-- Champ Téléphone -->
+        <div class="mb-4">
+            {{ form_row(form.telephone, { 'attr': { 
+                'class': 'w-full p-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:outline-none transition duration-300', 
+                'placeholder': 'Téléphone' 
+            } }) }}
+        </div>
+
+        <!-- Champ Campus -->
+        <div class="mb-4">
+            {{ form_row(form.campus, { 'attr': { 
+                'class': 'w-full p-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:outline-none transition duration-300' 
+            } }) }}
+        </div>
+
+        <!-- Champ Actif -->
+        <div class="mb-4">
+            {{ form_row(form.isActive, { 'attr': { 'class': 'rounded-lg' } }) }}
+        </div>
+
+        <!-- Bouton Ajouter -->
+        <div class="text-center">
+            <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-full shadow-md hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 transition duration-300">Ajouter</button>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

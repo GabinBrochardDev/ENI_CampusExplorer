@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gérer les utilisateurs{% endblock %}
+
+{% block body %}
+    <h1 class="text-3xl font-bold mb-6 text-center">Gérer les utilisateurs</h1>
+
+    <!-- Formulaire de recherche -->
+    <div class="flex justify-center mb-6">
+        {{ form_start(form, { 'attr': { 'class': 'flex items-center w-full max-w-xl' } }) }}
+        {{ form_widget(form.nom, { 'attr': { 'class': 'w-full p-3 rounded-md border-gray-300', 'placeholder': 'Rechercher par nom' } }) }}
+        <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-md ml-2">Rechercher</button>
+        {{ form_end(form) }}
+    </div>
+
+    <!-- Tableau des utilisateurs -->
+    <table class="table-auto w-full border text-center">
+        <thead>
+            <tr>
+                <th class="px-4 py-2">Nom</th>
+                <th class="px-4 py-2">Prénom</th>
+                <th class="px-4 py-2">Email</th>
+                <th class="px-4 py-2">Campus</th>
+                <th class="px-4 py-2">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td class="px-4 py-2">{{ user.nom }}</td>
+                    <td class="px-4 py-2">{{ user.prenom }}</td>
+                    <td class="px-4 py-2">{{ user.email }}</td>
+                    <td class="px-4 py-2">{{ user.campus.nom }}</td>
+                    <td class="px-4 py-2">
+                        <a href="{{ path('admin_edit_user', {id: user.id}) }}" class="text-blue-600">Modifier</a>
+                        <a href="{{ path('admin_delete_user', {id: user.id}) }}" class="text-red-600 ml-4">Supprimer</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="text-center mt-6">
+        <a href="{{ path('admin_add_user') }}" class="text-blue-600 hover:underline">Ajouter un utilisateur</a>
+    </div>
+{% endblock %}

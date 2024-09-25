@@ -107,4 +107,11 @@ class Campus
         return $this;
     }
 
+    // Ajoute cette méthode __toString()
+    public function __toString(): string
+    {
+        // Retourne la propriété nom comme chaîne de caractères
+        return $this->getNom(); // Assure-toi que le champ 'nom' est défini dans l'entité
+    }
+
 }
