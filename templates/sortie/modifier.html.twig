@@ -20,15 +20,15 @@
 
                 <div>
                     {{ form_row(form.campus, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg'}}) }}
-                    {{ form_row(form.lieu, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg'}}) }}
+                    {{ form_row(form.lieu, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg', 'onchange': 'updateLieuInfo()'}}) }}
 
-                    <div id="lieuInfo" class="mt-4 bg-gray-100 p-4 rounded-lg">
-                        {% if form.vars.value.lieu %}
-                            <p class="text-gray-800">Rue : {{ form.vars.value.lieu.rue }}</p>
-                        {% else %}
-                            <p class="text-gray-600">Sélectionnez un lieu pour voir les détails.</p>
-                        {% endif %}
-                    </div>
+                   <div id="lieuInfo" class="mt-4 bg-gray-100 p-4 rounded-lg">
+                    {% if form.vars.value.lieu %}
+                        <p class="text-gray-800">Rue : {{ form.vars.value.lieu.rue }}</p>
+                    {% else %}
+                        <p class="text-gray-600">Sélectionnez un lieu pour voir les détails.</p>
+                    {% endif %}
+                </div>
                 </div>
             </div>
 
@@ -48,19 +48,39 @@
     <script>
         function updateLieuInfo() {
             var lieuId = document.getElementById('{{ form.lieu.vars.id }}').value;
+            console.log('Selected Lieu ID:', lieuId); // Debugging line
 
             if (lieuId) {
-                fetch('/api/lieu/' + lieuId)
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById('lieuInfo').innerHTML = '<p class="text-gray-800">Rue : ' + data.rue + '</p>';
-                    })
-                    .catch(error => {
-                        document.getElementById('lieuInfo').innerHTML = '<p class="text-red-600">Erreur lors du chargement des détails du lieu.</p>';
-                    });
+                // Effectue une requête POST AJAX vers une route interne
+                fetch('{{ path('fetch_lieu_details') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'lieuId=' + lieuId
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text(); // Retourne la réponse en texte HTML
+                })
+                .then(data => {
+                    console.log('Lieu details:', data); // Debugging line
+                    document.getElementById('lieuInfo').innerHTML = data; // Affiche les détails dans le div
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error); // Debugging line
+                    document.getElementById('lieuInfo').innerHTML = '<p class="text-red-600">Erreur lors du chargement des détails du lieu.</p>';
+                });
             } else {
                 document.getElementById('lieuInfo').innerHTML = '<p class="text-gray-600">Sélectionnez un lieu pour voir les détails.</p>';
             }
         }
+
+        // Ajoute l'écouteur d'événement au chargement de la page
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('{{ form.lieu.vars.id }}').addEventListener('change', updateLieuInfo);
+        });
     </script>
 {% endblock %}

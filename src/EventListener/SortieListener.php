@@ -5,6 +5,7 @@ use App\Entity\Sortie;
 use App\Repository\EtatRepository;
 use Doctrine\ORM\Event\PostLoadEventArgs;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\EntityManagerInterface;
 
 class SortieListener
 {
@@ -28,23 +29,33 @@ class SortieListener
         }
 
         $entityManager = $args->getObjectManager();
+        $this->updateSortieState($entity, $entityManager);
+    }
+
+    public function updateSortieState(Sortie $sortie, EntityManagerInterface $entityManager): void
+    {
         $now = new \DateTime();
 
         // Vérifier si la date limite d'inscription est dépassée
-        if ($entity->getDateLimiteInscription() < $now) {
+        if ($sortie->getDateLimiteInscription() < $now) {
             $etatCloturee = $this->etatRepository->findOneBy(['libelle' => 'Clôturée']);
-            $entity->setEtat($etatCloturee);
-            $entityManager->persist($entity);
-            $entityManager->flush();
+            $sortie->setEtat($etatCloturee);
         }
 
         // Vérifier si la date de la sortie est dépassée d'un mois
-        $oneMonthAfter = (clone $entity->getDateHeureDebut())->modify('+1 month');
+        $oneMonthAfter = (clone $sortie->getDateHeureDebut())->modify('+1 month');
         if ($now > $oneMonthAfter) {
             $etatHistorisee = $this->etatRepository->findOneBy(['libelle' => 'Historisée']);
-            $entity->setEtat($etatHistorisee);
-            $entityManager->persist($entity);
-            $entityManager->flush();
+            $sortie->setEtat($etatHistorisee);
         }
+
+        // Si la sortie est encore ouverte et les dates sont valides, la remettre à "Ouverte"
+        if ($sortie->getDateLimiteInscription() >= $now && $now <= $oneMonthAfter) {
+            $etatOuverte = $this->etatRepository->findOneBy(['libelle' => 'Ouverte']);
+            $sortie->setEtat($etatOuverte);
+        }
+
+        $entityManager->persist($sortie);
+        $entityManager->flush();
     }
 }
