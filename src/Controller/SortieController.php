@@ -30,53 +30,33 @@ class SortieController extends AbstractController
     
         if ($form->isSubmitted() && $form->isValid()) {
             // Validation des dates
-         if ($sortie->getDateLimiteInscription() >= $sortie->getDateHeureDebut()) {
-    $this->addFlash('error', 'La date limite d\'inscription doit être antérieure à la date de début.');
-} else {
-    // Définir l'état de la sortie selon l'action
-    $action = $request->request->get('action');
-    if ($action === 'publish') {
-        $etatOuverte = $etatRepository->findOneBy(['libelle' => 'Ouverte']);
-        $sortie->setEtat($etatOuverte);
-    } else {
-        $etatCreation = $etatRepository->findOneBy(['libelle' => 'En création']);
-        $sortie->setEtat($etatCreation);
-    }
+            if ($sortie->getDateLimiteInscription() >= $sortie->getDateHeureDebut()) {
+                $this->addFlash('error', 'La date limite d\'inscription doit être antérieure à la date de début.');
+            } else {
+                // Définir l'état de la sortie selon l'action
+                $action = $request->request->get('action');
+                if ($action === 'publish') {
+                    $etatOuverte = $etatRepository->findOneBy(['libelle' => 'Ouverte']);
+                    $sortie->setEtat($etatOuverte);
+                } else {
+                    $etatCreation = $etatRepository->findOneBy(['libelle' => 'En création']);
+                    $sortie->setEtat($etatCreation);
+                }
 
-    // Sauvegarder la sortie
-    $entityManager->persist($sortie);
-    $entityManager->flush();
+                // Sauvegarder la sortie
+                $entityManager->persist($sortie);
+                $entityManager->flush();
 
-    // Message de confirmation et redirection
-        return $this->redirectToRoute('home');
-}if ($sortie->getDateLimiteInscription() >= $sortie->getDateHeureDebut()) {
-    $this->addFlash('error', 'La date limite d\'inscription doit être antérieure à la date de début.');
-} else {
-    // Définir l'état de la sortie selon l'action
-    $action = $request->request->get('action');
-    if ($action === 'publish') {
-        $etatOuverte = $etatRepository->findOneBy(['libelle' => 'Ouverte']);
-        $sortie->setEtat($etatOuverte);
-    } else {
-        $etatCreation = $etatRepository->findOneBy(['libelle' => 'En création']);
-        $sortie->setEtat($etatCreation);
-    }
-    $this->get('session')->getFlashBag()->clear();
-
-    // Sauvegarder la sortie
-    $entityManager->persist($sortie);
-    $entityManager->flush();
-
-    // Message de confirmation et redirection
-
-    return $this->redirectToRoute('home');
-}
+                // Message de confirmation et redirection
+                return $this->redirectToRoute('home');
+            }
         }
     
         return $this->render('sortie/create.html.twig', [
             'form' => $form->createView(),
         ]);
     }
+
     
     #[Route('/sortie/modifier/{id}', name: 'sortie_modifier')]
     public function modifier(Sortie $sortie, Request $request, EntityManagerInterface $entityManager, Security $security, SortieListener $sortieListener): Response
@@ -141,22 +121,20 @@ class SortieController extends AbstractController
     }
 
     #[Route('/sortie/annuler/{id}', name: 'sortie_annuler')]
-    public function annuler(Sortie $sortie, EntityManagerInterface $entityManager, EtatRepository $etatRepository, Security $security): Response
-    {
-        $this->checkIfOrganisateur($sortie, $security);
+public function annuler(Sortie $sortie, EntityManagerInterface $entityManager, EtatRepository $etatRepository, Security $security): Response
+{
+    $this->checkIfOrganisateur($sortie, $security);
 
-        // Passer l'état de la sortie à "Clôturée"
-        $etatCloturee = $etatRepository->findOneBy(['libelle' => 'Clôturée']);
-        $sortie->setEtat($etatCloturee);
+    // Passer l'état de la sortie à "Annulée"
+    $etatAnnulee = $etatRepository->findOneBy(['libelle' => 'Annulée']);
+    $sortie->setEtat($etatAnnulee);
 
-        // Enregistrer les changements
-        $entityManager->persist($sortie);
-        $entityManager->flush();
+    // Enregistrer les changements
+    $entityManager->persist($sortie);
+    $entityManager->flush();
 
-
-
-        return $this->redirectToRoute('home');
-    }
+    return $this->redirectToRoute('home');
+}
 
     private function checkIfOrganisateur(Sortie $sortie, Security $security): void
     {

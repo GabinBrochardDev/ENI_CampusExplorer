@@ -36,6 +36,11 @@ class SortieListener
     {
         $now = new \DateTime();
 
+        // Ne pas modifier l'état si la sortie est en "En création" ou "Annulée"
+        if (in_array($sortie->getEtat()->getLibelle(), ['En création', 'Annulée'])) {
+            return;
+        }
+
         // Vérifier si la date limite d'inscription est dépassée
         if ($sortie->getDateLimiteInscription() < $now) {
             $etatCloturee = $this->etatRepository->findOneBy(['libelle' => 'Clôturée']);
