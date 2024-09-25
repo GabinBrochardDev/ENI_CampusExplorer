@@ -13,7 +13,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-
 class UserController extends AbstractController
 {
     #[Route('/admin/manage/users', name: 'admin_manage_users')]
@@ -40,13 +39,28 @@ class UserController extends AbstractController
     }
 
     #[Route('/admin/manage/user/add', name: 'admin_add_user')]
-    public function addUser(Request $request, EntityManagerInterface $entityManager): Response
+    public function addUser(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
         $user = new Participant();
         $form = $this->createForm(ParticipantType::class, $user);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            // Encoder le mot de passe
+            $plainPassword = $form->get('password')->getData();
+            $encodedPassword = $passwordHasher->hashPassword($user, $plainPassword);
+            $user->setPassword($encodedPassword);
+
+            // Gérer le rôle admin
+            if ($form->get('isAdmin')->getData()) {
+                $roles = $user->getRoles();
+                $roles[] = 'ROLE_ADMIN';
+                $user->setRoles($roles);
+            } else {
+                $roles = array_diff($user->getRoles(), ['ROLE_ADMIN']);
+                $user->setRoles($roles);
+            }
+
             $entityManager->persist($user);
             $entityManager->flush();
 
@@ -59,12 +73,29 @@ class UserController extends AbstractController
     }
 
     #[Route('/admin/manage/user/edit/{id}', name: 'admin_edit_user')]
-    public function editUser(Participant $user, Request $request, EntityManagerInterface $entityManager): Response
+    public function editUser(Participant $user, Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
         $form = $this->createForm(ParticipantType::class, $user);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            // Si un nouveau mot de passe est fourni, on l'encode
+            $plainPassword = $form->get('password')->getData();
+            if (!empty($plainPassword)) {
+                $encodedPassword = $passwordHasher->hashPassword($user, $plainPassword);
+                $user->setPassword($encodedPassword);
+            }
+
+            // Gérer le rôle admin
+            if ($form->get('isAdmin')->getData()) {
+                $roles = $user->getRoles();
+                $roles[] = 'ROLE_ADMIN';
+                $user->setRoles($roles);
+            } else {
+                $roles = array_diff($user->getRoles(), ['ROLE_ADMIN']);
+                $user->setRoles($roles);
+            }
+
             $entityManager->flush();
 
             return $this->redirectToRoute('admin_manage_users');
@@ -83,51 +114,4 @@ class UserController extends AbstractController
 
         return $this->redirectToRoute('admin_manage_users');
     }
-
-    public function createUser(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
-    {
-        $user = new Participant();
-        $form = $this->createForm(ParticipantType::class, $user);
-
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            // Encoder le mot de passe
-            $plainPassword = $form->get('password')->getData();
-            $encodedPassword = $passwordHasher->hashPassword($user, $plainPassword);
-            $user->setPassword($encodedPassword);
-
-            $entityManager->persist($user);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('admin_manage_users');
-        }
-
-        return $this->render('admin/user/add_user.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
-
-    public function modifierUser(Participant $user, Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
-    {
-        $form = $this->createForm(ParticipantType::class, $user);
-
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            // Si un nouveau mot de passe est fourni, on l'encode
-            $plainPassword = $form->get('password')->getData();
-            if (!empty($plainPassword)) {
-                $encodedPassword = $passwordHasher->hashPassword($user, $plainPassword);
-                $user->setPassword($encodedPassword);
-            }
-
-            $entityManager->flush();
-
-            return $this->redirectToRoute('admin_manage_users');
-        }
-
-        return $this->render('admin/user/edit_user.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
-
 }
