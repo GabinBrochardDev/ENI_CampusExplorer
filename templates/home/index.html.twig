@@ -4,15 +4,18 @@
 
 {% block body %}
 <div class="container mx-auto p-4">
+    <!-- Header Section -->
+
+
     <!-- Filter Section -->
-    <div class="mt-6 p-6 bg-white rounded-lg shadow-lg border border-gray-300">
+    <div class="mt-6 p-6 bg-white rounded-lg shadow-lg">
         <h2 class="font-bold text-xl mb-4 text-gray-800">Filtrer les sorties</h2>
         <form method="get" action="{{ path('home') }}">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <!-- Campus Filter -->
                 <div class="flex flex-col">
                     <label for="campus" class="font-semibold text-gray-700">Campus</label>
-                    <select id="campus" name="campus" class="border border-gray-300 p-2 rounded focus:ring focus:ring-blue-200 shadow-sm">
+                    <select id="campus" name="campus" class="border border-gray-300 p-2 rounded focus:ring focus:ring-blue-200">
                         <option value="">Tous</option>
                         {% for campus in campuses %}
                             <option value="{{ campus.id }}" {{ campus.id == app.request.get('campus') ? 'selected' : '' }}>
@@ -25,47 +28,45 @@
                 <!-- Search Filter -->
                 <div class="flex flex-col">
                     <label for="search" class="font-semibold text-gray-700">Le nom de la sortie contient</label>
-                    <input type="text" id="search" name="search" class="border border-gray-300 p-2 rounded focus:ring focus:ring-blue-200 shadow-sm" value="{{ app.request.get('search') }}">
+                    <input type="text" id="search" name="search" class="border border-gray-300 p-2 rounded focus:ring focus:ring-blue-200" value="{{ app.request.get('search') }}">
                 </div>
 
                 <!-- Date Filter -->
                 <div class="flex flex-col">
                     <label class="font-semibold text-gray-700">Entre</label>
                     <div class="flex space-x-2">
-                        <input type="date" name="start_date" class="border border-gray-300 p-2 rounded focus:ring focus:ring-blue-200 shadow-sm" value="{{ app.request.get('start_date') }}">
+                        <input type="date" name="start_date" class="border border-gray-300 p-2 rounded focus:ring focus:ring-blue-200" value="{{ app.request.get('start_date') }}">
                         <span class="text-gray-600">et</span>
-                        <input type="date" name="end_date" class="border border-gray-300 p-2 rounded focus:ring focus:ring-blue-200 shadow-sm" value="{{ app.request.get('end_date') }}">
+                        <input type="date" name="end_date" class="border border-gray-300 p-2 rounded focus:ring focus:ring-blue-200" value="{{ app.request.get('end_date') }}">
                     </div>
                 </div>
             </div>
 
             <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4 mt-4">
                 <div class="flex items-center space-x-2">
-                    <input type="checkbox" id="organisateur" name="organisateur" {{ app.request.get('organisateur') ? 'checked' : '' }} class="shadow-sm">
+                    <input type="checkbox" id="organisateur" name="organisateur" {{ app.request.get('organisateur') ? 'checked' : '' }}>
                     <label for="organisateur" class="text-gray-700">Sorties dont je suis l'organisateur/trice</label>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <input type="checkbox" id="inscrit" name="inscrit" {{ app.request.get('inscrit') ? 'checked' : '' }} class="shadow-sm">
+                    <input type="checkbox" id="inscrit" name="inscrit" {{ app.request.get('inscrit') ? 'checked' : '' }}>
                     <label for="inscrit" class="text-gray-700">Sorties auxquelles je suis inscrit/e</label>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <input type="checkbox" id="non-inscrit" name="non-inscrit" {{ app.request.get('non-inscrit') ? 'checked' : '' }} class="shadow-sm">
+                    <input type="checkbox" id="non-inscrit" name="non-inscrit" {{ app.request.get('non-inscrit') ? 'checked' : '' }}>
                     <label for="non-inscrit" class="text-gray-700">Sorties auxquelles je ne suis pas inscrit/e</label>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <input type="checkbox" id="terminees" name="terminees" {{ app.request.get('terminees') ? 'checked' : '' }} class="shadow-sm">
+                    <input type="checkbox" id="terminees" name="terminees" {{ app.request.get('terminees') ? 'checked' : '' }}>
                     <label for="terminees" class="text-gray-700">Sorties terminées</label>
                 </div>
             </div>
 
-            <button type="submit" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow-lg hover:shadow-xl focus:outline-none focus:ring focus:ring-blue-300">
-                Rechercher
-            </button>
+            <button type="submit" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded focus:outline-none focus:ring focus:ring-blue-300">Rechercher</button>
         </form>
     </div>
 
     <!-- Table Section -->
-    <div class="mt-8 bg-white p-6 rounded-lg shadow-lg border border-gray-300">
+    <div class="mt-8 bg-white p-6 rounded-lg shadow-lg">
         <table class="min-w-full table-auto">
             <thead>
                 <tr class="bg-gray-200 text-left text-gray-700">
@@ -80,70 +81,44 @@
                 </tr>
             </thead>
             <tbody>
-                {% for sortie in sorties %}
-                    <tr class="border-b hover:bg-gray-50">
-                        <td class="p-2">{{ sortie.nom }}</td>
-                        <td class="p-2">{{ sortie.dateHeureDebut ? sortie.dateHeureDebut|date('d/m/Y') : '' }}</td>
-                        <td class="p-2">{{ sortie.dateLimiteInscription ? sortie.dateLimiteInscription|date('d/m/Y') : '' }}</td>
-                        <td class="p-2">{{ sortie.estinscrit|length }}/{{ sortie.nbInscriptionMax }}</td>
-                        <td class="p-2">{{ sortie.etat ? sortie.etat.libelle : '' }}</td>
-                        <td class="p-2">{{ sortie.estinscrit.contains(app.user) ? 'X' : '' }}</td>
-                        <td class="p-2 text-blue-600 hover:underline">
-                            <a href="{{ path('app_participant_detail', {'id': sortie.organisateur.id}) }}">{{ sortie.organisateur.nom }}</a>
-                        </td>
-                        <td class="p-2">
-                            {% if sortie.organisateur == app.user %}
-                                <div class="flex space-x-2">
-                                    {% if sortie.etat.libelle == 'Clôturée' %}
-                                        <a href="{{ path('sortie_afficher', {'id': sortie.id}) }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
-                                            Afficher
-                                        </a>
-                                    {% else %}
-                                        <a href="{{ path('sortie_modifier', {'id': sortie.id}) }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                                            Modifier
-                                        </a>
-                                        {% if sortie.etat.libelle == 'En création' %}
-                                            <a href="{{ path('sortie_publier', {'id': sortie.id}) }}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-                                                Publier
-                                            </a>
-                                            <a href="{{ path('sortie_supprimer', {'id': sortie.id}) }}" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette sortie ?');">
-                                                Supprimer
-                                            </a>
-                                        {% elseif sortie.etat.libelle == 'Ouverte' %}
-                                            <a href="{{ path('sortie_annuler', {'id': sortie.id}) }}" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette sortie ?');">
-                                                Annuler
-                                            </a>
-                                        {% endif %}
-                                    {% endif %}
-                                </div>
-                            {% else %}
-                                <div class="flex space-x-2">
-                                    <a href="{{ path('sortie_afficher', {'id': sortie.id}) }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
-                                        Afficher
-                                    </a>
-                                    {% if sortie.estinscrit.contains(app.user) %}
-                                        <a href="{{ path('sortie_desister', {'id': sortie.id}) }}" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
-                                            Se désister
-                                        </a>
-                                    {% elseif sortie.etat.libelle == 'Ouverte' and sortie.estinscrit|length < sortie.nbInscriptionMax %}
-                                        <a href="{{ path('sortie_inscrire', {'id': sortie.id}) }}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-                                            S'inscrire
-                                        </a>
-                                    {% endif %}
-                                </div>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="8" class="text-center p-4">Aucune sortie disponible</td>
-                    </tr>
-                {% endfor %}
+          {% for sortie in sorties %}
+              <tr class="border-b hover:bg-gray-100">
+                  <td class="p-4">{{ sortie.nom }}</td>
+                  <td class="p-4">{{ sortie.dateHeureDebut ? sortie.dateHeureDebut|date('d/m/Y') : '' }}</td>
+                  <td class="p-4">{{ sortie.dateLimiteInscription ? sortie.dateLimiteInscription|date('d/m/Y') : '' }}</td>
+                  <td class="p-4">{{ sortie.estinscrit|length }}/{{ sortie.nbInscriptionMax }}</td>
+                  <td class="p-4">{{ sortie.etat ? sortie.etat.libelle : '' }}</td>
+                  <td class="p-4 text-center">{{ sortie.estinscrit.contains(app.user) ? '✔' : '' }}</td>
+                  <td class="p-4">
+                      <a href="{{ path('app_participant_detail', {'id': sortie.organisateur.id}) }}" class="text-blue-600 hover:underline">{{ sortie.organisateur.nom }}</a>
+                  </td>
+                  <td class="p-4 space-x-2">
+                      <a href="{{ path('sortie_afficher', {'id': sortie.id}) }}" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded">Afficher</a>
+                      {% if sortie.organisateur == app.user %}
+                          <a href="{{ path('sortie_modifier', {'id': sortie.id}) }}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">Modifier</a>
+                          {% if sortie.etat.libelle == 'En création' %}
+                              <a href="{{ path('sortie_publier', {'id': sortie.id}) }}" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">Publier</a>
+                              <a href="{{ path('sortie_supprimer', {'id': sortie.id}) }}" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette sortie ?');">Supprimer</a>
+                          {% elseif sortie.etat.libelle == 'Ouverte' %}
+                              <a href="{{ path('sortie_annuler', {'id': sortie.id}) }}" class="bg-red-500 hover:bg-yellow-600 text-white px-3 py-1 rounded" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette sortie ?');">Annuler</a>
+                          {% endif %}
+                      {% else %}
+                          {% if sortie.estinscrit.contains(app.user) %}
+                              <a href="{{ path('sortie_desister', {'id': sortie.id}) }}" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">Se désister</a>
+                          {% elseif sortie.etat.libelle == 'Ouverte' and sortie.estinscrit|length < sortie.nbInscriptionMax %}
+                              <a href="{{ path('sortie_inscrire', {'id': sortie.id}) }}" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">S'inscrire</a>
+                          {% endif %}
+                      {% endif %}
+                  </td>
+              </tr>
+          {% else %}
+              <tr>
+                  <td colspan="8" class="text-center p-6 text-gray-600">Aucune sortie disponible</td>
+              </tr>
+          {% endfor %}
             </tbody>
         </table>
-        <a href="{{ path('sortie_create') }}" class="mt-6 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg shadow-lg inline-block font-bold hover:shadow-xl">
-            Créer une sortie
-        </a>
+        <a href="{{ path('sortie_create') }}" class="mt-6 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg inline-block font-bold">Créer une sortie</a>
     </div>
 </div>
 {% endblock %}
