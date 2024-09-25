@@ -55,7 +55,7 @@ class SortieType extends AbstractType
                 'class' => Lieu::class,
                 'choice_label' => 'nom',  // Utiliser la propriété 'nom' pour les options
                 'label' => 'Lieu',
-                'attr' => ['class' => 'form-control']
+                'attr' => ['class' => 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400']
             ]);
     }
 
