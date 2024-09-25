@@ -9,9 +9,13 @@ class AppFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        // $product = new Product();
-        // $manager->persist($product);
+        // Charger les autres fixtures
+        $this->addFixture(new VilleFixtures(), $manager);
+        // Ajoutez d'autres fixtures si nécessaire
+    }
 
-        $manager->flush();
+    private function addFixture(Fixture $fixture, ObjectManager $manager): void
+    {
+        $fixture->load($manager);
     }
 }

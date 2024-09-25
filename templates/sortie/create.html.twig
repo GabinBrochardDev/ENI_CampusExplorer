@@ -6,22 +6,48 @@
 <div class="container mx-auto mt-8 px-4">
     <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Créer une nouvelle sortie</h1>
 
+    {% for label, messages in app.flashes %}
+        <div class="mb-4">
+            {% for message in messages %}
+                <div class="p-4 mb-4 text-sm text-{{ label == 'success' ? 'green' : 'red' }}-700 bg-{{ label == 'success' ? 'green' : 'red' }}-100 rounded-lg" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+
+    {# Effacer les messages flash après les avoir affichés #}
+    {% do app.session.flashBag.clear() %}
+
     <div class="bg-white shadow-lg rounded-lg p-8 max-w-3xl mx-auto">
         {{ form_start(form) }}
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                 {{ form_row(form.nom, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
-                {{ form_row(form.dateHeureDebut, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
-                {{ form_row(form.dateLimiteInscription, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
+                {{ form_row(form.dateHeureDebut, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'id': 'dateHeureDebut'}}) }}
+                {{ form_row(form.dateLimiteInscription, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'id': 'dateLimiteInscription'}}) }}
                 {{ form_row(form.nbInscriptionMax, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
                 {{ form_row(form.duree, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
                 {{ form_row(form.infosSortie, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'rows': 5}}) }}
             </div>
 
             <div>
-                {{ form_row(form.campus, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
-                {{ form_row(form.lieu, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'onchange': 'updateLieuInfo()'}}) }}
+                {{ form_row(form.campus, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'placeholder': 'Sélectionnez un campus'}}) }}
+
+                {# Lieu field with manual rendering and placeholder #}
+                <label for="{{ form.lieu.vars.id }}" class="block text-sm font-medium text-gray-700">Lieu</label>
+                <select id="{{ form.lieu.vars.id }}" name="{{ form.lieu.vars.full_name }}"
+                    class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    placeholder="Sélectionnez un lieu"
+                    onchange="updateLieuInfo()">
+                    <option value="">{{ 'Sélectionnez un lieu'|trans }}</option>
+                    {% for choice in form.lieu.vars.choices %}
+                        <option value="{{ choice.value }}" {% if choice.value == form.lieu.vars.value %}selected{% endif %}>
+                            {{ choice.label }}
+                        </option>
+                    {% endfor %}
+                </select>
 
                 <div id="lieuInfo" class="mt-4 bg-gray-100 p-4 rounded-lg">
                     {% if form.vars.value.lieu %}
@@ -52,19 +78,38 @@
 <script>
     function updateLieuInfo() {
         var lieuId = document.getElementById('{{ form.lieu.vars.id }}').value;
-        
+        console.log('Selected Lieu ID:', lieuId); // Debugging line
+
         if (lieuId) {
-            fetch('/api/lieu/' + lieuId)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('lieuInfo').innerHTML = '<p class="text-gray-800">Rue : ' + data.rue + '</p>';
-                })
-                .catch(error => {
-                    document.getElementById('lieuInfo').innerHTML = '<p class="text-red-600">Erreur lors du chargement des détails du lieu.</p>';
-                });
+            // Effectue une requête POST AJAX vers une route interne
+            fetch('{{ path('fetch_lieu_details') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'lieuId=' + lieuId
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text(); // Retourne la réponse en texte HTML
+            })
+            .then(data => {
+                console.log('Lieu details:', data); // Debugging line
+                document.getElementById('lieuInfo').innerHTML = data; // Affiche les détails dans le div
+            })
+            .catch(error => {
+                console.error('Fetch error:', error); // Debugging line
+                document.getElementById('lieuInfo').innerHTML = '<p class="text-red-600">Erreur lors du chargement des détails du lieu.</p>';
+            });
         } else {
             document.getElementById('lieuInfo').innerHTML = '<p class="text-gray-600">Sélectionnez un lieu pour voir les détails.</p>';
         }
     }
+
+    // Vous pouvez déclencher la fonction lors du changement du champ de lieu
+    document.getElementById('{{ form.lieu.vars.id }}').addEventListener('change', updateLieuInfo);
 </script>
+
 {% endblock %}
