@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\Sortie;
 use App\Entity\Campus;
 use App\Entity\Lieu;
+use App\Entity\Ville;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;  // Utilisation de EntityType pour les relations
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
@@ -51,11 +52,23 @@ class SortieType extends AbstractType
                 'label' => 'Campus',
                 'attr' => ['class' => 'form-control']
             ])
+            // Ajout du champ Ville pour le filtre
+            ->add('ville', EntityType::class, [
+                'class' => Ville::class,
+                'choice_label' => 'nom',
+                'label' => 'Ville',
+                'placeholder' => 'Sélectionnez une ville',
+                'attr' => [
+                    'class' => 'form-control',
+                    'onchange' => 'filterLieuxByVille(this)' // Appel à la fonction JS
+                ],
+                'mapped' => false // Ce champ ne fait pas partie de l'entité Sortie directement
+            ])
             ->add('lieu', EntityType::class, [  // Ajout du champ lieu
                 'class' => Lieu::class,
                 'choice_label' => 'nom',  // Utiliser la propriété 'nom' pour les options
                 'label' => 'Lieu',
-                'attr' => ['class' => 'form-control']
+                'attr' => ['class' => 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400']
             ]);
     }
 
