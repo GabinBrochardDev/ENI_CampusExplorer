@@ -4,10 +4,12 @@ namespace App\Controller;
 
 use App\Entity\Participant;
 use App\Form\ProfileType;
+use App\Repository\LieuRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -74,5 +76,28 @@ class ProfileController extends AbstractController
             'form' => $form->createView(),
             'participant' => $participant,
         ]);
+    }
+
+    #[Route('/fetch_lieux_by_ville', name: 'fetch_lieux_by_ville', methods: ['POST'])]
+    public function fetchLieuxByVille(Request $request, LieuRepository $lieuRepository): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $villeId = $data['villeId'] ?? null;
+
+        if ($villeId) {
+            $lieux = $lieuRepository->findBy(['ville' => $villeId]);
+            $result = [];
+
+            foreach ($lieux as $lieu) {
+                $result[] = [
+                    'id' => $lieu->getId(),
+                    'nom' => $lieu->getNom(),
+                ];
+            }
+
+            return new JsonResponse($result);
+        }
+
+        return new JsonResponse([]);
     }
 }

@@ -16,27 +16,26 @@
         </div>
     {% endfor %}
 
-    {# Effacer les messages flash après les avoir affichés #}
-    {% do app.session.flashBag.clear() %}
-
     <div class="bg-white shadow-lg rounded-lg p-8 max-w-3xl mx-auto">
         {{ form_start(form) }}
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                 {{ form_row(form.nom, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
-                {{ form_row(form.dateHeureDebut, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'id': 'dateHeureDebut'}}) }}
-                {{ form_row(form.dateLimiteInscription, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'id': 'dateLimiteInscription'}}) }}
+                {{ form_row(form.dateHeureDebut, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
                 {{ form_row(form.nbInscriptionMax, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
                 {{ form_row(form.duree, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
                 {{ form_row(form.infosSortie, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'rows': 5}}) }}
             </div>
 
             <div>
-                {{ form_row(form.campus, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'placeholder': 'Sélectionnez un campus'}}) }}
+                {{ form_row(form.campus, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
+                
+                {# Sélection de la ville #}
+                {{ form_row(form.ville, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
 
-                {{ form_row(form.lieu) }}
-
+                {# Sélection du lieu, qui sera mis à jour par le JavaScript #}
+                {{ form_row(form.lieu, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
 
                 <div id="lieuInfo" class="mt-4 bg-gray-100 p-4 rounded-lg">
                     {% if form.vars.value.lieu %}
@@ -65,40 +64,35 @@
 </div>
 
 <script>
-    function updateLieuInfo() {
-        var lieuId = document.getElementById('{{ form.lieu.vars.id }}').value;
-        console.log('Selected Lieu ID:', lieuId); // Debugging line
-
-        if (lieuId) {
-            // Effectue une requête POST AJAX vers une route interne
-            fetch('{{ path('fetch_lieu_details') }}', {
+    function filterLieuxByVille(select) {
+        var villeId = select.value;
+        var lieuSelect = document.getElementById('{{ form.lieu.vars.id }}');
+        
+        if (villeId) {
+            fetch('{{ path('fetch_lieux_by_ville') }}', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/json',
                 },
-                body: 'lieuId=' + lieuId
+                body: JSON.stringify({ villeId: villeId })
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.text(); // Retourne la réponse en texte HTML
-            })
+            .then(response => response.json())
             .then(data => {
-                console.log('Lieu details:', data); // Debugging line
-                document.getElementById('lieuInfo').innerHTML = data; // Affiche les détails dans le div
+                // Vide le select des lieux actuels
+                lieuSelect.innerHTML = '<option value="">Sélectionnez un lieu</option>';
+                // Ajoute les nouveaux lieux selon la ville sélectionnée
+                data.forEach(function(lieu) {
+                    var option = document.createElement('option');
+                    option.value = lieu.id;
+                    option.textContent = lieu.nom;
+                    lieuSelect.appendChild(option);
+                });
             })
-            .catch(error => {
-                console.error('Fetch error:', error); // Debugging line
-                document.getElementById('lieuInfo').innerHTML = '<p class="text-red-600">Erreur lors du chargement des détails du lieu.</p>';
-            });
+            .catch(error => console.error('Erreur lors de la récupération des lieux:', error));
         } else {
-            document.getElementById('lieuInfo').innerHTML = '<p class="text-gray-600">Sélectionnez un lieu pour voir les détails.</p>';
+            lieuSelect.innerHTML = '<option value="">Sélectionnez une ville d\'abord</option>';
         }
     }
-
-    // Vous pouvez déclencher la fonction lors du changement du champ de lieu
-    document.getElementById('{{ form.lieu.vars.id }}').addEventListener('change', updateLieuInfo);
 </script>
 
 {% endblock %}
