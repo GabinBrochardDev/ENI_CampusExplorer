@@ -18,7 +18,7 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
 
-    #[ORM\Column(length: 180, unique: true)]
+    #[ORM\Column(length: 180)]
     private ?string $nom = null;
 
     #[ORM\Column]
@@ -47,6 +47,9 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\ManyToMany(targetEntity: Sortie::class, mappedBy: 'estInscrit')]
     private Collection $inscriptions;
+
+    #[ORM\Column(length: 255)]
+    private ?string $pseudo = null;
 
 
 
@@ -209,6 +212,18 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->inscriptions->removeElement($inscription)) {
             $inscription->removeEstInscrit($this);
         }
+
+        return $this;
+    }
+
+    public function getPseudo(): ?string
+    {
+        return $this->pseudo;
+    }
+
+    public function setPseudo(string $pseudo): static
+    {
+        $this->pseudo = $pseudo;
 
         return $this;
     }
