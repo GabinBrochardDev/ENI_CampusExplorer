@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Service\CsvImportService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -28,15 +29,21 @@ class CsvImportController extends AbstractController
                 'mapped' => false,
                 'required' => false,
             ])
+            ->add('has_header', CheckboxType::class, [
+                'label' => 'Le fichier CSV contient une ligne d\'en-tête ?',
+                'required' => false,
+                'mapped' => false,
+            ])
             ->getForm();
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $csvFile = $form->get('csv_file')->getData();
+            $hasHeader = $form->get('has_header')->getData(); // Récupère la val de la checkbox
 
             if ($csvFile) {
                 try {
-                    $result = $this->csvImportService->importParticipants($csvFile);
+                    $result = $this->csvImportService->importParticipants($csvFile, $hasHeader);
                     $participants = $result['participants'];
                     $errors = $result['errors'];
 

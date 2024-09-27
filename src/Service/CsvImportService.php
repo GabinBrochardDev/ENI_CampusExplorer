@@ -19,20 +19,29 @@ class CsvImportService
         $this->passwordHasher = $passwordHasher;
     }
 
-    public function importParticipants(UploadedFile $file): array
+    public function importParticipants(UploadedFile $file, bool $hasHeader = false): array
     {
         $participants = [];
         $errors = [];
+        $lineNumber = 1; // Compteur permettant de connaitre la ligne en cours
 
         $campusRepository = $this->entityManager->getRepository(Campus::class);
 
         // Ouvrir le fichier CSV
         if (($handle = fopen($file->getPathname(), "r")) !== false) {
+
+            if ($hasHeader) {
+                fgetcsv($handle, 1000, ";");
+                $lineNumber++;
+            }
+
+
             // Lire le fichier CSV ligne par ligne
             while (($data = fgetcsv($handle, 1000, ";")) !== false) {
                 // Vérifier si le nombre de colonnes est correct
-                if (count($data) < 7) {
-                    $errors[] = 'Ligne mal formatée : ' . implode(';', $data);
+                if (count($data) !== 7) {
+                    $errors[] = 'Ligne ' . $lineNumber . ' : Ligne mal formatée. Email: ' . $data[0];
+                    $lineNumber++;
                     continue;
                 }
 
@@ -49,9 +58,13 @@ class CsvImportService
 
                 // Vérifier si l'email existe déjà
                 $existingParticipant = $this->entityManager->getRepository(Participant::class)->findOneBy(['email' => $email]);
+                $existingParticipantPseudo = $this->entityManager->getRepository(Participant::class)->findOneBy(['pseudo' => $pseudo]);
 
-                if (!$existingParticipant) {
-
+                if ($existingParticipant) {
+                    $errors[] = 'Ligne ' . $lineNumber . ' : Email "' . $email . '" existe déjà. ';
+                } elseif ($existingParticipantPseudo) {
+                    $errors[] = 'Ligne ' . $lineNumber . ' : Pseudo \"' . $pseudo . '\" existe déjà. ';
+                } else {
                     // Rechercher le campus correspondant au nom
                     $campus = $campusRepository->findOneBy(['nom' => $nomCampus]);
 
@@ -75,6 +88,8 @@ class CsvImportService
                     $this->entityManager->persist($participant);
                     $participants[] = $participant;
                 }
+
+                $lineNumber++;
             }
 
             // Sauvegarder les changements en base de données
