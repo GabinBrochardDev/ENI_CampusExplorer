@@ -24,7 +24,7 @@ class CsvImportController extends AbstractController
     {
         $form = $this->createFormBuilder()
             ->add('csv_file', FileType::class, [
-                'label' => 'Fichier CSV (CSV uniquement)',
+                'label' => 'Sélectionner un fichier CSV (CSV avec ";")',
                 'mapped' => false,
                 'required' => false,
             ])
