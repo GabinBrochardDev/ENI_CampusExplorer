@@ -29,14 +29,6 @@
             } }) }}
         </div>
 
-        <!-- Champ Mot de passe -->
-        <div class="mb-6">
-            {{ form_row(form.password, { 'attr': { 
-                'class': 'w-full px-4 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 transition duration-300', 
-                'placeholder': 'Mot de passe' 
-            } }) }}
-        </div>
-
         <!-- Champ Email -->
         <div class="mb-6">
             {{ form_row(form.email, { 'attr': { 
@@ -80,5 +72,28 @@
         </div>
 
         {{ form_end(form) }}
+    </div>
+
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Modifier le mot de passe</h2>
+
+    <div class="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-lg">
+        {{ form_start(passwordForm) }}
+
+        <!-- Champ Nouveau mot de passe -->
+        <div class="mb-6">
+            {{ form_row(passwordForm.newPassword, { 'attr': { 
+                'class': 'w-full px-4 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 transition duration-300', 
+                'placeholder': 'Nouveau mot de passe' 
+            } }) }}
+        </div>
+
+        <!-- Bouton Modifier le mot de passe -->
+        <div class="text-center">
+            <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 transition duration-300">
+                Modifier le mot de passe
+            </button>
+        </div>
+
+        {{ form_end(passwordForm) }}
     </div>
 {% endblock %}
