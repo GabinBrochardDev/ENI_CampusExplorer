@@ -16,3 +16,8 @@ app_participant_detail:
     path: /participants/{id}
     controller: App\Controller\ParticipantController::show
     methods: [GET]
+
+api_sorties:
+    path: /api/sorties
+    controller: App\Controller\SortieApiController::getSorties
+    methods: [GET]
