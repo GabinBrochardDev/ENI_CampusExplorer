@@ -8,24 +8,27 @@
 
     <div class="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-lg">
         {{ form_start(form) }}
-
+        
             <div class="mb-6">
-                {{ form_widget(form,  { 'attr': { 
+                {{ form_widget(form.csv_file,  { 'attr': { 
                     'class': 'w-full px-4 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 transition duration-300', 
                     'placeholder': 'Sélectionner un fichier CSV' 
                 } }) }}
+            </div>
 
+            <!-- Case à cocher stylisée -->
+            <div class="mb-6">
+                <label class="flex items-center w-full px-4 py-2 rounded-md border border-gray-300 focus-within:border-blue-500 focus-within:ring focus-within:ring-blue-200 transition duration-300">
+                    {{ form_widget(form.has_header, { 'attr': { 'class': 'form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-300' } }) }}
+                    <span class="ml-2 text-gray-800">Le fichier CSV contient une ligne d'en-tête</span>
+                </label>
             </div>
 
             <div class="text-center">
                 <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 transition duration-300">Importer</button>
             </div>
-
-
+            
         {{ form_end(form) }}
-
-
-
 
 
         {% for message in app.flashes('success') %}
