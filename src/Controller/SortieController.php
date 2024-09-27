@@ -121,26 +121,22 @@ class SortieController extends AbstractController
     }
 
     #[Route('/sortie/annuler/{id}', name: 'sortie_annuler')]
-public function annuler(Sortie $sortie, EntityManagerInterface $entityManager, EtatRepository $etatRepository, Security $security): Response
-{
-    $this->checkIfOrganisateur($sortie, $security);
-
-    // Passer l'état de la sortie à "Annulée"
-    $etatAnnulee = $etatRepository->findOneBy(['libelle' => 'Annulée']);
-    $sortie->setEtat($etatAnnulee);
-
-    // Enregistrer les changements
-    $entityManager->persist($sortie);
-    $entityManager->flush();
-
-    return $this->redirectToRoute('home');
-}
-
-    private function checkIfOrganisateur(Sortie $sortie, Security $security): void
+    public function annuler(Sortie $sortie, EntityManagerInterface $entityManager, EtatRepository $etatRepository, Security $security): Response
     {
-        if ($sortie->getOrganisateur() !== $security->getUser()) {
+        // Vérifier si l'utilisateur est l'organisateur ou un administrateur
+        if ($sortie->getOrganisateur() !== $security->getUser() && !$security->isGranted('ROLE_ADMIN')) {
             throw $this->createAccessDeniedException('Vous n\'êtes pas autorisé à gérer cette sortie.');
         }
+    
+        // Passer l'état de la sortie à "Annulée"
+        $etatAnnulee = $etatRepository->findOneBy(['libelle' => 'Annulée']);
+        $sortie->setEtat($etatAnnulee);
+    
+        // Enregistrer les changements
+        $entityManager->persist($sortie);
+        $entityManager->flush();
+    
+        return $this->redirectToRoute('home');
     }
 
     #[Route('/sortie/{id}/inscrire', name: 'sortie_inscrire')]

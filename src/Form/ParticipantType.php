@@ -31,11 +31,6 @@ class ParticipantType extends AbstractType
                 'label' => 'Email',
                 'attr' => ['class' => 'form-control'],
             ])
-            ->add('password', PasswordType::class, [
-                'label' => 'Mot de passe',
-                'required' => true,
-                'attr' => ['class' => 'form-control'],
-            ])
             ->add('telephone', TextType::class, [
                 'label' => 'Téléphone',
                 'required' => false,
