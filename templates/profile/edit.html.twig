@@ -27,8 +27,6 @@
                 {{ form_errors(form.password.second, {'attr': {'class': 'text-red-500 text-sm'}}) }}
             </div>
 
-           
-
             <div class="mb-4 flex items-center justify-between">
                 <div>
                     {% if participant.photo %}
@@ -48,21 +46,8 @@
             <div>
                 {{ form_row(form.photo, {'attr': {'class': 'border border-gray-300 rounded-md p-2 w-full', 'onchange': 'previewImage(event)'}}) }}
             </div>
-       
-            <!-- Champ pour la photo de profil -->
-            {# {% if participant.photo %}
-                <img src="{{ asset('uploads/profile_photos/' ~ participant.photo) }}" alt="Photo de profil" class="w-32 h-32 rounded-full">
-            {% else %}
-                <p>Aucune photo de profil</p>
-            {% endif %}
-             #}
 
-         
-
-            
-            
-
-             <div class="text-center">
+            <div class="text-center">
                 <button type="submit" class="mt-4 bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     Mettre à jour
                 </button>
