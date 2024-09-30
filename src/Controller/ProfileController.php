@@ -25,8 +25,8 @@ class ProfileController extends AbstractController
         EntityManagerInterface $entityManager, 
         UserInterface $user, 
         UserPasswordHasherInterface $passwordHasher,
-        SluggerInterface $slugger,
-        #[Autowire('%kernel.project_dir%/public/uploads/profile')] string $profileDir): Response
+        SluggerInterface $slugger // Ajoutez le Slugger pour gérer le nom de fichier
+        ): Response
     {
         // Vérifiez si l'utilisateur est une instance de Participant
         if (!$user instanceof Participant) {
@@ -40,19 +40,23 @@ class ProfileController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            /** @var UploadedFile $imageFile */
-            $imageFile = $form->get('photo')->getData();
-
-            if (!empty($imageFile)) {
-                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+            // Gestion de la photo de profil
+            $photoFile = $form->get('photo')->getData();
+            if ($photoFile) {
+                $originalFilename = pathinfo($photoFile->getClientOriginalName(), PATHINFO_FILENAME);
                 $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'.'.uniqid().'.'.$imageFile->guessExtension();
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $photoFile->guessExtension();
 
-                try {
-                    $imageFile->move($profileDir, $newFilename);
+                try{
+                    $photoFile->move(
+                        $this->getParameter('profile_photos_directory'),
+                        $newFilename
+                    );
                 } catch (FileException $e) {
-                    // ... handle exception if something happens during file upload
+                    $this->addFlash('danger', 'Erreur lors du téléchargement de la photo.');
                 }
+
+                // met à jour la propriété photo de l'utilisateur
                 $participant->setPhoto($newFilename);
             }
 
