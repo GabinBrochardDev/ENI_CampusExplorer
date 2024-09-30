@@ -1,14 +1,14 @@
-# config/packages/security.yaml
-
 security:
+    # Configuration des password hashers
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
 
+    # Fournisseurs d'utilisateurs
     providers:
         app_user_provider:
             entity:
-                class: App\Entity\Participant # Modifié pour utiliser Participant
-                property: email # Ou 'username' si vous utilisez le pseudo pour la connexion
+                class: App\Entity\Participant
+                property: email
 
     firewalls:
         main:
@@ -25,12 +25,19 @@ security:
                 target: login
             remember_me:
                 secret: '%kernel.secret%'
-                lifetime: 604800 # Durée d'une semaine
-                path: / # Chemin sur lequel le cookie est valide
-                always_remember_me: false  # N'utilise le remember_me que si la case est cochée
+                lifetime: 604800
+                path: /
+                always_remember_me: false
+            http_basic:  # Ajout de HTTP Basic
+                realm: "Secured Area"
+            # Spécification de l'entry point pour éviter le conflit
+            entry_point: form_login
+
     access_control:
-         - { path: ^/login }
-         - { path: ^/register }
-         - { path: ^/home, roles: ROLE_USER } # Seuls les utilisateurs connectés peuvent accéder à /home
-         - { path: ^/, roles: ROLE_USER } # Par défaut, toutes les autres routes sont protégées
-         - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/login }
+        - { path: ^/register }
+        - { path: ^/home, roles: ROLE_USER }
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/api/sorties, roles: ROLE_USER }
+        - { path: ^/api, roles: ROLE_USER }
+        - { path: ^/, roles: ROLE_USER }
