@@ -36,10 +36,13 @@
                 <div id="lieuInfo" class="mt-4 bg-gray-100 p-4 rounded-lg">
                     {% if form.vars.value.lieu %}
                         <p class="text-gray-800">Rue : {{ form.vars.value.lieu.rue }}</p>
+                        <p class="text-gray-800">Latitude : {{ form.vars.value.lieu.latitude }}</p>
+                        <p class="text-gray-800">Longitude : {{ form.vars.value.lieu.longitude }}</p>
                     {% else %}
                         <p class="text-gray-600">Sélectionnez un lieu pour voir les détails.</p>
                     {% endif %}
                 </div>
+                <div id="map" style="height: 200px; border: 1px solid #ccc;" class="mt-6"></div>
             </div>
         </div>
 
@@ -54,116 +57,145 @@
     </div>
 
    <script>
-    // Fonction pour charger les lieux en fonction de la ville sélectionnée
-    function filterLieuxByVille(select) {
-        var villeId = select.value;
-        var lieuSelect = document.getElementById('{{ form.lieu.vars.id }}');
+var map;
 
-        if (villeId) {
-            lieuSelect.disabled = false; // Activer le champ Lieu
-            fetch('{{ path('fetch_lieux_by_ville') }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ villeId: villeId })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => { throw new Error(err.error); });
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Vide le select des lieux actuels
-                lieuSelect.innerHTML = '<option value="">Sélectionnez un lieu</option>';
-                // Ajoute les nouveaux lieux selon la ville sélectionnée
-                data.forEach(function(lieu) {
-                    var option = document.createElement('option');
-                    option.value = lieu.id;
-                    option.textContent = lieu.nom;
-                    lieuSelect.appendChild(option);
-                });
-            })
-            .catch(error => {
-                console.error('Erreur lors de la récupération des lieux:', error.message);
-                alert(error.message);  // Affichage de l'erreur à l'utilisateur
-            });
-        } else {
-            lieuSelect.disabled = true; // Réactiver la désactivation si aucune ville n'est sélectionnée
-            lieuSelect.innerHTML = '<option value="">Sélectionnez une ville d\'abord</option>';
-        }
+function initMap(latitude, longitude) {
+    if (map) {
+        map.remove(); // Supprime la carte précédente si elle existe
     }
+    map = L.map('map').setView([latitude, longitude], 13); // 13 est le niveau de zoom
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
 
-    // Fonction pour charger les détails d'un lieu sélectionné
-    function fetchLieuDetails(select) {
-        var lieuId = select.value;
-        var lieuInfoDiv = document.getElementById('lieuInfo');
+    L.marker([latitude, longitude]).addTo(map)
+        .bindPopup('Lieu sélectionné')
+        .openPopup();
+}
 
-        if (lieuId) {
-            fetch('{{ path('fetch_lieu_details') }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ lieuId: lieuId })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => { throw new Error(err.error); });
-                }
-                return response.text();
-            })
-            .then(html => {
-                // Affiche les détails du lieu dans le div
-                lieuInfoDiv.innerHTML = html;
-            })
-            .catch(error => {
-                console.error('Erreur lors de la récupération des détails du lieu:', error.message);
-                lieuInfoDiv.innerHTML = '<p class="text-red-600">Erreur lors de la récupération des détails du lieu.</p>';
+function filterLieuxByVille(select) {
+    var villeId = select.value;
+    var lieuSelect = document.getElementById('{{ form.lieu.vars.id }}');
+
+    if (villeId) {
+        lieuSelect.disabled = false; // Activer le champ Lieu
+        fetch('{{ path('fetch_lieux_by_ville') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ villeId: villeId })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw new Error(err.error); });
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Vide le select des lieux actuels
+            lieuSelect.innerHTML = '<option value="">Sélectionnez un lieu</option>';
+            // Ajoute les nouveaux lieux selon la ville sélectionnée
+            data.forEach(function(lieu) {
+                var option = document.createElement('option');
+                option.value = lieu.id;
+                option.textContent = lieu.nom;
+                lieuSelect.appendChild(option);
             });
-        } else {
-            lieuInfoDiv.innerHTML = '<p class="text-gray-600">Sélectionnez un lieu pour voir les détails.</p>';
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        // Obtenir la date d'aujourd'hui au format YYYY-MM-DD
-        var today = new Date().toISOString().split('T')[0];
-
-        // Ajouter l'attribut min aux champs de date dans le formulaire
-        document.getElementById('{{ form.dateHeureDebut.vars.id }}').setAttribute('min', today);
-        document.getElementById('{{ form.dateLimiteInscription.vars.id }}').setAttribute('min', today);
-
-        // Empêcher la sélection de dates antérieures dans le sélecteur de calendrier
-        var dateInputs = [document.getElementById('{{ form.dateHeureDebut.vars.id }}'), 
-                          document.getElementById('{{ form.dateLimiteInscription.vars.id }}')];
-        
-        dateInputs.forEach(function(input) {
-            input.addEventListener('change', function() {
-                var warningId = input.id === '{{ form.dateHeureDebut.vars.id }}' ? 'dateDebutWarning' : 'dateLimiteWarning';
-                var warningElement = document.getElementById(warningId);
-
-                if (input.value < today) {
-                    input.value = today;
-                    warningElement.classList.remove('hidden'); // Affiche l'avertissement
-                } else {
-                    warningElement.classList.add('hidden'); // Cache l'avertissement si la date est valide
-                }
-            });
+        })
+        .catch(error => {
+            console.error('Erreur lors de la récupération des lieux:', error.message);
+            alert(error.message);  // Affichage de l'erreur à l'utilisateur
         });
-          var nbInscriptionMaxInput = document.getElementById('{{ form.nbInscriptionMax.vars.id }}');
-             nbInscriptionMaxInput.addEventListener('input', function () {
-            if (this.value < 0) {
-                this.value = 0;
-                alert('Le nombre de places ne peut pas être négatif.');
+    } else {
+        lieuSelect.disabled = true; // Réactiver la désactivation si aucune ville n'est sélectionnée
+        lieuSelect.innerHTML = '<option value="">Sélectionnez une ville d\'abord</option>';
+        if (map) {
+            map.remove(); // Supprime la carte précédente si aucune ville n'est sélectionnée
+            map = null; // Réinitialise la variable de carte
+        }
+    }
+}
+
+function fetchLieuDetails(select) {
+    var lieuId = select.value;
+    var lieuInfoDiv = document.getElementById('lieuInfo');
+
+    if (lieuId) {
+        fetch('{{ path('fetch_lieu_details') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ lieuId: lieuId })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw new Error(err.error); });
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Affiche les détails du lieu dans le div
+            lieuInfoDiv.innerHTML = '<p class="text-gray-800">Rue : ' + data.rue + '</p>' +
+                                    '<p class="text-gray-800">Latitude : ' + data.latitude + '</p>' +
+                                    '<p class="text-gray-800">Longitude : ' + data.longitude + '</p>';
+            // Initialiser la carte avec les coordonnées du lieu
+            initMap(data.latitude, data.longitude);
+        })
+        .catch(error => {
+            console.error('Erreur lors de la récupération des détails du lieu:', error.message);
+            lieuInfoDiv.innerHTML = '<p class="text-red-600">Erreur lors de la récupération des détails du lieu.</p>';
+        });
+    } else {
+        lieuInfoDiv.innerHTML = '<p class="text-gray-600">Sélectionnez un lieu pour voir les détails.</p>';
+        if (map) {
+            map.remove(); // Supprime la carte précédente
+            map = null; // Réinitialise la variable de carte
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Obtenir la date d'aujourd'hui au format YYYY-MM-DD
+    var today = new Date().toISOString().split('T')[0];
+
+    // Ajouter l'attribut min aux champs de date dans le formulaire
+    document.getElementById('{{ form.dateHeureDebut.vars.id }}').setAttribute('min', today);
+    document.getElementById('{{ form.dateLimiteInscription.vars.id }}').setAttribute('min', today);
+
+    // Empêcher la sélection de dates antérieures dans le sélecteur de calendrier
+    var dateInputs = [document.getElementById('{{ form.dateHeureDebut.vars.id }}'), 
+                      document.getElementById('{{ form.dateLimiteInscription.vars.id }}')];
+    
+    dateInputs.forEach(function(input) {
+        input.addEventListener('change', function() {
+            var warningId = input.id === '{{ form.dateHeureDebut.vars.id }}' ? 'dateDebutWarning' : 'dateLimiteWarning';
+            var warningElement = document.getElementById(warningId);
+
+            if (input.value < today) {
+                input.value = today;
+                warningElement.classList.remove('hidden'); // Affiche l'avertissement
+            } else {
+                warningElement.classList.add('hidden'); // Cache l'avertissement si la date est valide
             }
         });
-        // Ajout de l'événement onchange pour récupérer les détails du lieu
-        document.getElementById('{{ form.lieu.vars.id }}').addEventListener('change', function() {
-            fetchLieuDetails(this);
-        });
     });
+
+    var nbInscriptionMaxInput = document.getElementById('{{ form.nbInscriptionMax.vars.id }}');
+    nbInscriptionMaxInput.addEventListener('input', function () {
+        if (this.value < 0) {
+            this.value = 0;
+            alert('Le nombre de places ne peut pas être négatif.');
+        }
+    });
+
+    // Ajout de l'événement onchange pour récupérer les détails du lieu
+    document.getElementById('{{ form.lieu.vars.id }}').addEventListener('change', function() {
+        fetchLieuDetails(this);
+    });
+});
 </script>
 
 {% endblock %}
