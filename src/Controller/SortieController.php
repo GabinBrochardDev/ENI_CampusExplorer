@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Sortie;
 use App\Form\SortieType;
+use App\Form\SortieModifType;
 use App\Repository\EtatRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -15,6 +16,12 @@ use App\EventListener\SortieListener;
 
 class SortieController extends AbstractController
 {
+    private function checkIfOrganisateur(Sortie $sortie, Security $security)
+    {
+        if ($sortie->getOrganisateur() !== $security->getUser() && !$security->isGranted('ROLE_ADMIN')) {
+            throw $this->createAccessDeniedException('Vous n\'êtes pas autorisé à gérer cette sortie.');
+        }
+    }
     #[Route('/sortie/create', name: 'sortie_create')]
     public function create(Request $request, EntityManagerInterface $entityManager, EtatRepository $etatRepository, Security $security): Response
     {
@@ -63,7 +70,7 @@ class SortieController extends AbstractController
     {
         $this->checkIfOrganisateur($sortie, $security);
     
-        $form = $this->createForm(SortieType::class, $sortie);
+        $form = $this->createForm(SortieModifType::class, $sortie);
         $form->handleRequest($request);
     
         if ($form->isSubmitted() && $form->isValid()) {

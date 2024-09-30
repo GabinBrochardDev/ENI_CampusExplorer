@@ -13,18 +13,22 @@ class LieuController extends AbstractController
     #[Route('/fetch-lieu-details', name: 'fetch_lieu_details')]
     public function fetchLieuDetails(Request $request, LieuRepository $lieuRepository): Response
     {
-        $lieuId = $request->request->get('lieuId'); // Récupération de l'ID du lieu
+        // Récupération du contenu JSON de la requête
+        $data = json_decode($request->getContent(), true);
 
-        if (!$lieuId) {
-            return new Response('Lieu ID non fourni', 400);
+        // Vérification que lieuId est bien présent
+        if (!isset($data['lieuId'])) {
+            return new Response(json_encode(['error' => 'Lieu ID non fourni']), 400, ['Content-Type' => 'application/json']);
         }
 
+        $lieuId = $data['lieuId'];
         $lieu = $lieuRepository->find($lieuId);
 
         if (!$lieu) {
-            return new Response('Lieu non trouvé', 404);
+            return new Response(json_encode(['error' => 'Lieu non trouvé']), 404, ['Content-Type' => 'application/json']);
         }
 
+        // Répondre avec les détails du lieu au format HTML
         return new Response('<p>Rue : ' . $lieu->getRue() . '</p>');
     }
 }
