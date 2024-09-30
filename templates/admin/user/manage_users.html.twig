@@ -24,7 +24,6 @@
             <thead class="bg-gray-100">
                 <tr class="text-left text-gray-700">
                     <th class="px-6 py-3">Photo</th>
-                    <th class="px-6 py-3">Photo</th>
                     <th class="px-6 py-3">Nom</th>
                     <th class="px-6 py-3">Prénom</th>
                     <th class="px-6 py-3">Email</th>
@@ -35,15 +34,6 @@
             <tbody>
                 {% for user in users %}
                     <tr class="border-t hover:bg-gray-50 transition-colors">
-                        <td class="px-6 py-4 text-gray-800">
-                            <div class="rounded-full p-1 w-16 h-16 flex items-center justify-center">
-                                {% if user.photo %}
-                                    <img src="{{ asset('uploads/profile_photos/' ~ user.photo) }}" alt="Photo de profil" class="w-full h-full object-cover rounded-full">
-                                {% else %}
-                                    <img src="{{ asset('img/default_profile.webp') }}" alt="Photo de profil par défaut" class="w-full h-full object-cover rounded-full">
-                                {% endif %}
-                            </div>
-                        </td>
                         <td class="px-6 py-4 text-gray-800">
                             <div class="rounded-full p-1 w-16 h-16 flex items-center justify-center">
                                 {% if user.photo %}
@@ -86,10 +76,13 @@
         <a href="{{ path('import_participants') }}" class="bg-blue-600 text-white px-6 py-3 rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 transition duration-300 ml-4">
             Import CSV
         </a>
-        <a href="{{ path('import_participants') }}" class="bg-blue-600 text-white px-6 py-3 rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 transition duration-300 ml-4">
-            Import CSV
-        </a>
     </div>
+
+    {% for message in app.flashes('success') %}
+           <div class="alert alert-success mt-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                {{ message }}
+            </div>
+    {% endfor %}
 
 
     <script>
