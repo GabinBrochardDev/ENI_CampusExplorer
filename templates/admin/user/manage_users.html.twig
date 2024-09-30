@@ -23,6 +23,7 @@
         <table class="table-auto w-full border border-gray-300 shadow-lg rounded-lg">
             <thead class="bg-gray-100">
                 <tr class="text-left text-gray-700">
+                    <th class="px-6 py-3">Photo</th>
                     <th class="px-6 py-3">Nom</th>
                     <th class="px-6 py-3">Prénom</th>
                     <th class="px-6 py-3">Email</th>
@@ -33,6 +34,15 @@
             <tbody>
                 {% for user in users %}
                     <tr class="border-t hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 text-gray-800">
+                            <div class="rounded-full p-1 w-16 h-16 flex items-center justify-center">
+                                {% if user.photo %}
+                                    <img src="{{ asset('uploads/profile_photos/' ~ user.photo) }}" alt="Photo de profil" class="w-full h-full object-cover rounded-full">
+                                {% else %}
+                                    <img src="{{ asset('img/default_profile.webp') }}" alt="Photo de profil par défaut" class="w-full h-full object-cover rounded-full">
+                                {% endif %}
+                            </div>
+                        </td>
                         <td class="px-6 py-4 text-gray-800">{{ user.nom }}</td>
                         <td class="px-6 py-4 text-gray-800">{{ user.prenom }}</td>
                         <td class="px-6 py-4 text-gray-800">{{ user.email }}</td>
