@@ -4,6 +4,9 @@
 
 {% block body %}
 <div class="container mx-auto mt-8">
+<div id="errorBanner" class="hidden bg-red-600 text-white p-4 rounded-lg text-center mb-4">
+        <p id="errorMessage">Votre message d'erreur ici.</p>
+    </div>
     <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Créer une nouvelle sortie</h1>
 
     {% for label, messages in app.flashes %}
@@ -27,9 +30,11 @@
                 <p id="dateDebutWarning" class="text-red-600 text-sm hidden">Veuillez sélectionner une date future ou égale à aujourd'hui.</p>
 
                 {{ form_row(form.dateLimiteInscription, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'min': today}}) }}
-                <p id="dateLimiteWarning" class="text-red-600 text-sm hidden">Veuillez sélectionner une date future ou égale à aujourd'hui.</p>
+                <p id="dateLimiteInscriptionWarning" class="text-red-600 text-sm hidden">Veuillez sélectionner une date future ou égale à aujourd'hui.</p>
+                <p id="dateLimiteInscriptionError" class="text-red-600 text-sm hidden">La date limite d'inscription ne peut pas être après la date de sortie.</p>
 
                 {{ form_row(form.nbInscriptionMax, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
+                <p id="nbInscriptionMaxWarning" class="text-red-600 text-sm hidden">Le nombre de places ne peut pas être négatif.</p>
                 {{ form_row(form.duree, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
                 {{ form_row(form.infosSortie, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'rows': 5}}) }}
             </div>
@@ -196,11 +201,47 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    var dateLimiteInscriptionInput = document.getElementById('{{ form.dateLimiteInscription.vars.id }}');
+    var dateLimiteInscriptionWarning = document.getElementById('dateLimiteInscriptionWarning');
+    var dateLimiteInscriptionError = document.getElementById('dateLimiteInscriptionError');
+    var dateHeureDebutInput = document.getElementById('{{ form.dateHeureDebut.vars.id }}');
+
+    dateHeureDebutInput.addEventListener('change', function () {
+        // Vérifie si la date limite est après la date de sortie
+        if (dateLimiteInscriptionInput.value > this.value) {
+            dateLimiteInscriptionError.classList.remove('hidden'); // Affiche l'erreur
+        } else {
+            dateLimiteInscriptionError.classList.add('hidden'); // Cache l'erreur si valide
+        }
+    });
+
+    dateLimiteInscriptionInput.addEventListener('change', function () {
+        var today = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
+
+        if (this.value < today) {
+            this.value = today; // Réinitialiser à aujourd'hui
+            dateLimiteInscriptionWarning.classList.remove('hidden'); // Affiche l'avertissement
+        } else {
+            dateLimiteInscriptionWarning.classList.add('hidden'); // Cache l'avertissement si la date est valide
+        }
+
+        // Vérifie si la date limite est après la date de sortie
+        if (this.value > dateHeureDebutInput.value) {
+            dateLimiteInscriptionError.classList.remove('hidden'); // Affiche l'erreur
+        } else {
+            dateLimiteInscriptionError.classList.add('hidden'); // Cache l'erreur si valide
+        }
+    });
+
     var nbInscriptionMaxInput = document.getElementById('{{ form.nbInscriptionMax.vars.id }}');
+    var nbInscriptionMaxWarning = document.getElementById('nbInscriptionMaxWarning');
+
     nbInscriptionMaxInput.addEventListener('input', function () {
         if (this.value < 0) {
-            this.value = 0;
-            alert('Le nombre de places ne peut pas être négatif.');
+            this.value = 0; // Réinitialiser à 0
+            nbInscriptionMaxWarning.classList.remove('hidden'); // Affiche l'avertissement
+        } else {
+            nbInscriptionMaxWarning.classList.add('hidden'); // Cache l'avertissement si la valeur est valide
         }
     });
 
