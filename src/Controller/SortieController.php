@@ -127,22 +127,32 @@ class SortieController extends AbstractController
         return $this->redirectToRoute('home');
     }
 
-    #[Route('/sortie/annuler/{id}', name: 'sortie_annuler')]
-    public function annuler(Sortie $sortie, EntityManagerInterface $entityManager, EtatRepository $etatRepository, Security $security): Response
+    #[Route('/sortie/annuler/{id}', name: 'sortie_annuler', methods: ['POST'])]
+    public function annuler(Sortie $sortie, Request $request, EntityManagerInterface $entityManager, EtatRepository $etatRepository, Security $security): Response
     {
         // Vérifier si l'utilisateur est l'organisateur ou un administrateur
         if ($sortie->getOrganisateur() !== $security->getUser() && !$security->isGranted('ROLE_ADMIN')) {
             throw $this->createAccessDeniedException('Vous n\'êtes pas autorisé à gérer cette sortie.');
         }
-    
+
+        // Récupérer le motif de l'annulation depuis le formulaire
+        $motif = $request->request->get('motif');
+        if (empty($motif)) {
+            $this->addFlash('error', 'Le motif de l\'annulation est requis.');
+            return $this->redirectToRoute('home');
+        }
+
         // Passer l'état de la sortie à "Annulée"
         $etatAnnulee = $etatRepository->findOneBy(['libelle' => 'Annulée']);
         $sortie->setEtat($etatAnnulee);
-    
+
+        // Ajouter le motif de l'annulation dans la description
+        $sortie->setMotifAnnulation($motif);
+
         // Enregistrer les changements
         $entityManager->persist($sortie);
         $entityManager->flush();
-    
+
         return $this->redirectToRoute('home');
     }
 

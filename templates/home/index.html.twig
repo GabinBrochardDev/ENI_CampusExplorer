@@ -120,9 +120,7 @@
                         <a href="{{ path('sortie_afficher', {'id': sortie.id}) }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
                             Afficher
                         </a>
-                        <a href="{{ path('sortie_annuler', {'id': sortie.id}) }}" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette sortie ?');">
-                            Annuler
-                        </a>
+                           <a href="javascript:void(0);" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600" onclick="openCancelModal('{{ sortie.id }}', '{{ sortie.nom }}', '{{ path('sortie_afficher', {'id': sortie.id}) }}', '{{ path('sortie_annuler', {'id': sortie.id}) }}');">Annuler</a>
                     {% endif %}
                 {% endif %}
             </div>
@@ -141,9 +139,7 @@
                     </a>
                 {% endif %}
                 {% if is_granted('ROLE_ADMIN') and sortie.etat.libelle != 'Annulée' and sortie.etat.libelle != 'En création' %}
-                    <a href="{{ path('sortie_annuler', {'id': sortie.id}) }}" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette sortie ?');">
-                        Annuler
-                    </a>
+                       <a href="javascript:void(0);" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600" onclick="openCancelModal('{{ sortie.id }}', '{{ sortie.nom }}', '{{ path('sortie_afficher', {'id': sortie.id}) }}', '{{ path('sortie_annuler', {'id': sortie.id}) }}');">Annuler</a>
                 {% endif %}
             </div>
         {% endif %}
@@ -162,4 +158,37 @@
         </a>
     </div>
 </div>
+
+<!-- Modal for Annulation -->
+<div id="cancelModal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div class="flex items-center justify-center min-h-screen">
+    <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg">
+      <h3 class="text-lg font-medium text-gray-900" id="modal-title">Annuler la sortie</h3>
+      <form id="cancelForm" method="post" action="">
+        <div class="mt-4">
+          <p class="text-sm text-gray-500" id="recap"></p>
+          <label for="motif" class="block text-sm font-medium text-gray-700 mt-4">Motif de l'annulation</label>
+          <textarea id="motif" name="motif" rows="3" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md" placeholder="Motif de l'annulation"></textarea>
+        </div>
+        <div class="mt-6 flex justify-end">
+          <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded mr-2" onclick="closeModal()">Annuler</button>
+          <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">Confirmer l'annulation</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+    function openCancelModal(id, name, recapUrl, submitUrl) {
+        document.getElementById('recap').innerHTML = "Êtes-vous sûr de vouloir annuler la sortie : " + name + " ?";
+        document.getElementById('cancelForm').action = submitUrl;
+        document.getElementById('cancelModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('cancelModal').classList.add('hidden');
+    }
+</script>
+
 {% endblock %}
