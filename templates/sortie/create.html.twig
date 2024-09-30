@@ -22,8 +22,13 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                 {{ form_row(form.nom, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
-                {{ form_row(form.dateHeureDebut, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
-                {{ form_row(form.dateLimiteInscription, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'id': 'dateLimiteInscription'}}) }}
+                {% set today = "now"|date('Y-m-d') %}
+                {{ form_row(form.dateHeureDebut, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'min': today}}) }}
+                <p id="dateDebutWarning" class="text-red-600 text-sm hidden">Veuillez sélectionner une date future ou égale à aujourd'hui.</p>
+
+                {{ form_row(form.dateLimiteInscription, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'min': today}}) }}
+                <p id="dateLimiteWarning" class="text-red-600 text-sm hidden">Veuillez sélectionner une date future ou égale à aujourd'hui.</p>
+
                 {{ form_row(form.nbInscriptionMax, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
                 {{ form_row(form.duree, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
                 {{ form_row(form.infosSortie, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'rows': 5}}) }}
@@ -65,9 +70,7 @@
 </div>
 
 <script>
-    // Désactiver le champ Lieu au chargement de la page
-    document.getElementById('{{ form.lieu.vars.id }}').disabled = true;
-
+    // Fonction pour charger les lieux en fonction de la ville sélectionnée
     function filterLieuxByVille(select) {
         var villeId = select.value;
         var lieuSelect = document.getElementById('{{ form.lieu.vars.id }}');
@@ -81,7 +84,12 @@
                 },
                 body: JSON.stringify({ villeId: villeId })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.error); });
+                }
+                return response.json();
+            })
             .then(data => {
                 // Vide le select des lieux actuels
                 lieuSelect.innerHTML = '<option value="">Sélectionnez un lieu</option>';
@@ -93,12 +101,85 @@
                     lieuSelect.appendChild(option);
                 });
             })
-            .catch(error => console.error('Erreur lors de la récupération des lieux:', error));
+            .catch(error => {
+                console.error('Erreur lors de la récupération des lieux:', error.message);
+                alert(error.message);  // Affichage de l'erreur à l'utilisateur
+            });
         } else {
             lieuSelect.disabled = true; // Réactiver la désactivation si aucune ville n'est sélectionnée
             lieuSelect.innerHTML = '<option value="">Sélectionnez une ville d\'abord</option>';
         }
     }
+
+    // Fonction pour charger les détails d'un lieu sélectionné
+    function fetchLieuDetails(select) {
+        var lieuId = select.value;
+        var lieuInfoDiv = document.getElementById('lieuInfo');
+
+        if (lieuId) {
+            fetch('{{ path('fetch_lieu_details') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ lieuId: lieuId })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.error); });
+                }
+                return response.text();
+            })
+            .then(html => {
+                // Affiche les détails du lieu dans le div
+                lieuInfoDiv.innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Erreur lors de la récupération des détails du lieu:', error.message);
+                lieuInfoDiv.innerHTML = '<p class="text-red-600">Erreur lors de la récupération des détails du lieu.</p>';
+            });
+        } else {
+            lieuInfoDiv.innerHTML = '<p class="text-gray-600">Sélectionnez un lieu pour voir les détails.</p>';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Obtenir la date d'aujourd'hui au format YYYY-MM-DD
+        var today = new Date().toISOString().split('T')[0];
+
+        // Ajouter l'attribut min aux champs de date dans le formulaire
+        document.getElementById('{{ form.dateHeureDebut.vars.id }}').setAttribute('min', today);
+        document.getElementById('{{ form.dateLimiteInscription.vars.id }}').setAttribute('min', today);
+
+        // Empêcher la sélection de dates antérieures dans le sélecteur de calendrier
+        var dateInputs = [document.getElementById('{{ form.dateHeureDebut.vars.id }}'), 
+                          document.getElementById('{{ form.dateLimiteInscription.vars.id }}')];
+        
+        dateInputs.forEach(function(input) {
+            input.addEventListener('change', function() {
+                var warningId = input.id === '{{ form.dateHeureDebut.vars.id }}' ? 'dateDebutWarning' : 'dateLimiteWarning';
+                var warningElement = document.getElementById(warningId);
+
+                if (input.value < today) {
+                    input.value = today;
+                    warningElement.classList.remove('hidden'); // Affiche l'avertissement
+                } else {
+                    warningElement.classList.add('hidden'); // Cache l'avertissement si la date est valide
+                }
+            });
+        });
+          var nbInscriptionMaxInput = document.getElementById('{{ form.nbInscriptionMax.vars.id }}');
+             nbInscriptionMaxInput.addEventListener('input', function () {
+            if (this.value < 0) {
+                this.value = 0;
+                alert('Le nombre de places ne peut pas être négatif.');
+            }
+        });
+        // Ajout de l'événement onchange pour récupérer les détails du lieu
+        document.getElementById('{{ form.lieu.vars.id }}').addEventListener('change', function() {
+            fetchLieuDetails(this);
+        });
+    });
 </script>
 
 {% endblock %}

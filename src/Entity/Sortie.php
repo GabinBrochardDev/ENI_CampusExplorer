@@ -48,6 +48,9 @@ class Sortie
     #[ORM\ManyToOne(inversedBy: 'sorties')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Participant $organisateur = null;
+    
+    #[ORM\ManyToOne(inversedBy: 'sorties')]
+    private ?Ville $ville = null;
 
     /**
      * @var Collection<int, Participant>
@@ -181,6 +184,18 @@ class Sortie
     public function setOrganisateur(?Participant $organisateur): static
     {
         $this->organisateur = $organisateur;
+
+        return $this;
+    }
+
+      public function getVille(): ?Ville
+    {
+        return $this->ville;
+    }
+
+    public function setVille(?Ville $ville): self
+    {
+        $this->ville = $ville;
 
         return $this;
     }
