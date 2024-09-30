@@ -15,26 +15,6 @@
             {{ form_row(form.email, {'attr': {'class': 'border border-gray-300 rounded-md p-2 w-full'}}) }}
             {{ form_row(form.telephone, {'attr': {'class': 'border border-gray-300 rounded-md p-2 w-full'}}) }}
 
-            {# Section pour la photo actuelle et la prévisualisation de la nouvelle photo #}
-            <div class="mb-4 flex items-center justify-between">
-                <div>
-                    {% if participant.photo %}
-                        <p>Photo actuelle :</p>
-                        <img src="{{ asset('uploads/profile/' ~ participant.photo) }}" alt="Photo de profil actuelle" class="mb-2 h-32 w-32 rounded-full object-cover">
-                    {% else %}
-                        <p>Il n'y a pas encore de photo de profil.</p>
-                    {% endif %}
-                </div>
-
-                <div>
-                    <p id="new-photo-label" style="display: none;">Nouvelle photo :</p>
-                    <img id="preview-image" class="mb-2 h-32 w-32 rounded-full object-cover" style="display: none;" alt="Aperçu de la nouvelle photo">
-                </div>
-            </div>
-
-            {# Champ de sélection de photo #}
-            {{ form_row(form.photo, {'attr': {'class': 'border border-gray-300 rounded-md p-2 w-full', 'onchange': 'previewImage(event)'}}) }}
-
             <div>
                 {{ form_label(form.password.first, 'Mot de passe', {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
                 {{ form_widget(form.password.first, {'attr': {'class': 'border border-gray-300 rounded-md p-2 w-full'}}) }}
@@ -47,15 +27,49 @@
                 {{ form_errors(form.password.second, {'attr': {'class': 'text-red-500 text-sm'}}) }}
             </div>
 
-            <div class="text-center">
+           
+
+            <div class="mb-4 flex items-center justify-between">
+                <div>
+                    {% if participant.photo %}
+                        <p>Photo actuelle :</p>
+                            <img src="{{ asset('uploads/profile_photos/' ~ participant.photo) }}" alt="Photo de profil" class="w-32 h-32 rounded-full">
+                    {% else %}
+                        <p>Il n'y a pas encore de photo de profil.</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <p id="new-photo-label" style="display: none;">Nouvelle photo :</p>
+                    <img id="preview-image" class="mb-2 h-32 w-32 rounded-full object-cover" style="display: none;" alt="Aperçu de la nouvelle photo">
+                </div>
+            </div>
+            
+            <div>
+                {{ form_row(form.photo, {'attr': {'class': 'border border-gray-300 rounded-md p-2 w-full', 'onchange': 'previewImage(event)'}}) }}
+            </div>
+       
+            <!-- Champ pour la photo de profil -->
+            {# {% if participant.photo %}
+                <img src="{{ asset('uploads/profile_photos/' ~ participant.photo) }}" alt="Photo de profil" class="w-32 h-32 rounded-full">
+            {% else %}
+                <p>Aucune photo de profil</p>
+            {% endif %}
+             #}
+
+         
+
+            
+            
+
+             <div class="text-center">
                 <button type="submit" class="mt-4 bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     Mettre à jour
                 </button>
             </div>
 
-       
+        {{ form_end(form) }}
 
-    
     </div>
 </div>
 

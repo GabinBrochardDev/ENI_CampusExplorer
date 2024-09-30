@@ -58,15 +58,16 @@ class ProfileType extends AbstractType
             ])
             ->add('photo', FileType::class, [
                 'label' => 'Photo de profil',
-                'mapped'=> false,
+                'mapped' => false,
                 'required' => false,
                 'constraints' => [
                     new File([
-                        'maxSize' => '1024k',
+                        'maxSize' => '2M',
                         'mimeTypes' => [
-                            'image/*',
+                            'image/jpeg',
+                            'image/png',
                         ],
-                        'mimeTypesMessage' => 'Veuillez entrer une image valide',
+                        'mimeTypesMessage' => 'Veuillez uploader une image valide',
                     ])
                 ],
             ])
