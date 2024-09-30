@@ -52,6 +52,10 @@ class Sortie
     #[ORM\ManyToOne(inversedBy: 'sorties')]
     private ?Ville $ville = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $motifAnnulation = null; // Nouveau champ pour motif d'annulation
+
+
     /**
      * @var Collection<int, Participant>
      */
@@ -200,6 +204,17 @@ class Sortie
         return $this;
     }
 
+    public function getMotifAnnulation(): ?string
+    {
+        return $this->motifAnnulation;
+    }
+
+    public function setMotifAnnulation(?string $motifAnnulation): static
+    {
+        $this->motifAnnulation = $motifAnnulation;
+
+        return $this;
+    }
     /**
      * @return Collection<int, Participant>
      */

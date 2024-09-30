@@ -56,12 +56,10 @@ class SortieModifType extends AbstractType
                 'class' => Ville::class,
                 'choice_label' => 'nom',
                 'label' => 'Ville',
-              
                 'attr' => [
                     'class' => 'form-control',
                     'onchange' => 'filterLieuxByVille(this)' // Appel à la fonction JS
                 ],
-               
             ])
             ->add('lieu', EntityType::class, [  // Ajout du champ lieu
                 'class' => Lieu::class,
