@@ -38,12 +38,12 @@ class SecurityController extends AbstractController
             ?? $this->participantRepository->findOneBy(['pseudo' => $identifier]);
 
         if ($participant) {
-            // Logique d'authentification ici si nécessaire
-            $security->login($participant);
+            // Utilisation de l'alias de l'authentificateur pour éviter les erreurs
+            $security->login($participant, 'security.authenticator.form_login.main');
         }
 
         return $this->render('security/login.html.twig', [
-            'nom' => $identifier,
+            'login' => $identifier, // Notez que j'ai changé 'nom' en 'login'
             'error' => $error,
         ]);
     }
