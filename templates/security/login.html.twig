@@ -15,8 +15,8 @@
 
         <form action="{{ path('login') }}" method="post" class="space-y-4">
             <div class="space-y-2">
-                <label for="nom" class="block text-sm font-medium text-gray-700">Email</label>
-                <input type="text" id="nom" name="_nom" value="{{ nom }}" required autofocus
+                <label for="login" class="block text-sm font-medium text-gray-700">Email ou Pseudo</label>
+                <input type="text" id="login" name="_login" value="{{ login }}" required autofocus
                     class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             </div>
 
@@ -53,7 +53,7 @@
     document.addEventListener('DOMContentLoaded', (event) => {
         // Charger les données si elles sont présentes dans localStorage
         if (localStorage.getItem('rememberMe') === 'true') {
-            document.getElementById('nom').value = localStorage.getItem('username');
+            document.getElementById('login').value = localStorage.getItem('username');
             document.getElementById('remember_me').checked = true;
         }
 
@@ -61,7 +61,7 @@
         document.querySelector('form').addEventListener('submit', function() {
             const rememberMeChecked = document.getElementById('remember_me').checked;
             if (rememberMeChecked) {
-                localStorage.setItem('username', document.getElementById('nom').value);
+                localStorage.setItem('username', document.getElementById('login').value);
                 localStorage.setItem('rememberMe', 'true');
             } else {
                 localStorage.removeItem('username');
