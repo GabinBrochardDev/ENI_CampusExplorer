@@ -1,76 +1,240 @@
+
 {% extends 'base.html.twig' %}
- 
+
 {% block title %}Créer une nouvelle sortie{% endblock %}
- 
+
 {% block body %}
 <div class="container mx-auto mt-8">
-    <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Créer une nouvelle sortie</h1>
- 
-    {# Conteneur pour les messages d'erreur globaux #}
     <div id="globalError" class="hidden mb-6 p-4 text-sm text-red-700 bg-red-100 rounded-lg shadow-lg" role="alert">
         <strong>Erreur :</strong> <span id="globalErrorMessage"></span>
     </div>
- 
+
+    <h1 class="text-2xl font-bold mb-6">Créer une nouvelle sortie</h1>
+
     {% for label, messages in app.flashes %}
         <div class="mb-4">
             {% for message in messages %}
-                <div class="p-4 mb-4 textssm text-{{ label == 'success' ? 'green' : 'red' }}-700 bg-{{ label == 'success' ? 'green' : 'red' }}-100 rounded-lg shadow-lg" role="alert">
+                <div class="p-4 mb-4 text-sm text-{{ label == 'success' ? 'green' : 'red' }}-700 bg-{{ label == 'success' ? 'green' : 'red' }}-100 rounded-lg shadow-lg" role="alert">
                     {{ message }}
                 </div>
             {% endfor %}
         </div>
     {% endfor %}
- 
-    <div class="bg-white shadow-md rounded-lg p-6">
-        {{ form_start(form) }}
- 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                {{ form_row(form.nom, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
-                {% set today = "now"|date('Y-m-d') %}
-                {{ form_row(form.dateHeureDebut, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'min': today}}) }}
-                {{ form_row(form.dateLimiteInscription, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'min': today}}) }}
-                {{ form_row(form.nbInscriptionMax, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}  
-                {{ form_row(form.duree, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
-                {{ form_row(form.infosSortie, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'rows': 5}}) }}
-            </div>
- 
-            <div>
-                {{ form_row(form.campus, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
-               
-                {# Sélection de la ville #}
-                {{ form_row(form.ville, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'onchange': 'filterLieuxByVille(this)'}}) }}
- 
-                {# Sélection du lieu, qui sera désactivé tant qu'aucune ville n'est sélectionnée #}
-                {{ form_row(form.lieu, {'attr': {'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'disabled': 'disabled'}}) }}
- 
-                <div id="lieuInfo" class="mt-4 bg-gray-100 p-4 rounded-lg">
-                    {% if form.vars.value.lieu %}
-                    {% else %}
-                        <p class="text-gray-600">Sélectionnez un lieu pour voir les détails.</p>
-                    {% endif %}
-                </div>
-                <div id="map" style="height: 200px; border: 1px solid #ccc;" class="mt-6"></div>
-            </div>
+
+ <div class="bg-white shadow-lg rounded-xl p-8">
+    {{ form_start(form) }}
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+            {{ form_row(form.nom, {'attr': {'class': 'block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
+
+            {% set today = "now"|date('Y-m-d') %}
+            {{ form_row(form.dateHeureDebut, {'attr': {'class': 'block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'min': today}}) }}
+            <p id="dateDebutWarning" class="text-red-600 text-sm hidden">Veuillez sélectionner une date future ou égale à aujourd'hui.</p>
+
+            {{ form_row(form.dateLimiteInscription, {'attr': {'class': 'block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'min': today}}) }}
+            <p id="dateLimiteInscriptionWarning" class="text-red-600 text-sm hidden">Veuillez sélectionner une date future ou égale à aujourd'hui.</p>
+            <p id="dateLimiteInscriptionError" class="text-red-600 text-sm hidden">La date limite d'inscription ne peut pas être après la date de sortie.</p>
+
+            {{ form_row(form.nbInscriptionMax, {'attr': {'class': 'block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
+            <p id="nbInscriptionMaxWarning" class="text-red-600 text-sm hidden">Le nombre de places ne peut pas être négatif.</p>
+
+            {{ form_row(form.duree, {'attr': {'class': 'block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
+            {{ form_row(form.infosSortie, {'attr': {'class': 'block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'rows': 5}}) }}
         </div>
- 
-        <div class="flex justify-end space-x-4 mt-6">
-            <button type="submit" name="action" value="save" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
-                Enregistrer
-            </button>
-            <button type="submit" name="action" value="publish" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-green-400">
-                Publier
-            </button>
-            <a href="{{ path('home') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-400">
-                Retour à la liste
-            </a>
+
+        <div>
+            {{ form_row(form.campus, {'attr': {'class': 'block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
+
+            {{ form_row(form.ville, {'attr': {'class': 'block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400', 'onchange': 'filterLieuxByVille(this)'}}) }}
+
+            <div class="flex items-center">
+    <div class="flex-grow">
+        {{ form_row(form.lieu, {'attr': {'class': 'block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400'}}) }}
+    </div>
+    <div class="ml-2 flex items-center">
+    <button type="button" class="border border-gray-300 text-blue-600 hover:text-blue-700 font-semibold p-2 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400 flex items-center justify-center" onclick="openLieuPopup()">
+        <i class="fas fa-plus"></i>
+    </button>
+</div>
+</div>
+
+
+            <div id="lieuInfo" class="mt-4 bg-gray-100 p-4 rounded-lg shadow-inner">
+                {% if form.vars.value.lieu %}
+                    <p class="text-gray-800">Rue : {{ form.vars.value.lieu.rue }}</p>
+                    <p class="text-gray-800">Latitude : {{ form.vars.value.lieu.latitude }}</p>
+                    <p class="text-gray-800">Longitude : {{ form.vars.value.lieu.longitude }}</p>
+                {% else %}
+                    <p class="text-gray-600">Sélectionnez un lieu pour voir les détails.</p>
+                {% endif %}
+            </div>
+
+            <div id="map" class="mt-6 h-48 border border-gray-300 rounded-lg"></div>
         </div>
- 
-        {{ form_end(form) }}
+    </div>
+
+    <div class="flex justify-end space-x-4 mt-6">
+        <button type="submit" name="action" value="save" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+            Enregistrer
+        </button>
+        <button type="submit" name="action" value="publish" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-green-400">
+            Publier
+        </button>
+        <a href="{{ path('home') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-400">
+            Retour à la liste
+        </a>
+    </div>
+
+    {{ form_end(form) }}
+</div>
+
+</div>
+
+<div id="lieuPopup" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center hidden z-100">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-1/2">
+        <h2 class="text-2xl font-bold mb-4">Créer un nouveau lieu</h2>
+        <form id="lieuForm" method="POST" action="/votre-url-de-soumission">
+            <div class="mb-4">
+                <label for="ville" class="block text-gray-700">Ville</label>
+                <select id="ville" name="ville" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    {% for ville in villes %}
+                        <option value="{{ ville.id }}">{{ ville.nom }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label for="lieuNom" class="block text-gray-700">Nom</label>
+                <input type="text" id="lieuNom" name="nom" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+            </div>
+
+            <div class="mb-4">
+                <label for="lieuRue" class="block text-gray-700">Rue</label>
+                <input type="text" id="lieuRue" name="rue" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+            </div>
+
+            <div class="mb-4">
+                <label for="lieuLatitude" class="block text-gray-700">Latitude</label>
+                <input type="text" id="lieuLatitude" name="latitude" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+            </div>
+
+            <div class="mb-4">
+                <label for="lieuLongitude" class="block text-gray-700">Longitude</label>
+                <input type="text" id="lieuLongitude" name="longitude" class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+            </div>
+
+            <div class="flex justify-end space-x-4 mt-6">
+                <button type="button" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400" onclick="submitLieuForm()">
+                    Enregistrer
+                </button>
+                <button type="button" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-400" onclick="closeLieuPopup()">
+                    Annuler
+                </button>
+            </div>
+        </form>
     </div>
 </div>
- 
+</form>
+
 <script>
+    function submitLieuForm() {
+        document.getElementById('lieuForm').submit(); // Soumettre le formulaire
+    }
+</script>
+
+    </div>
+</div>
+
+<script>
+
+function openLieuPopup() {
+    document.getElementById('lieuPopup').classList.remove('hidden');
+}
+
+function closeLieuPopup() {
+    document.getElementById('lieuPopup').classList.add('hidden');
+}
+
+function submitLieuForm() {
+    var form = document.getElementById('lieuForm');
+    var formData = new FormData(form);
+
+    var data = {
+        rue: formData.get('rue'),
+        ville: formData.get('ville'),  // ID de la ville sélectionnée
+        latitude: formData.get('latitude'),
+        longitude: formData.get('longitude'),
+        nom: formData.get('nom')       // Nom du lieu
+    };
+
+    // Vérifiez si tous les champs sont présents avant d'envoyer la requête
+    if (!data.rue || !data.ville || !data.latitude || !data.longitude || !data.nom) {
+        alert('Tous les champs sont obligatoires.');
+        return;
+    }
+
+    fetch('/create-lieu', {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())  // Parser la réponse en JSON
+    .then(data => {
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        alert(data.success);
+        closeLieuPopup();  // Ferme le popup après succès
+    })
+    .catch(error => {
+        console.error('Erreur lors de la création du lieu:', error.message);
+        alert(error.message);  // Afficher l'erreur à l'utilisateur
+    });
+}
+
+
+function fetchLieuDetails(select) {
+    var lieuId = select.value;
+    var lieuInfoDiv = document.getElementById('lieuInfo');
+
+    if (lieuId) {
+        fetch('{{ path('fetch_lieu_details') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ lieuId: lieuId })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw new Error(err.error); });
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Affiche les détails du lieu dans le div
+            lieuInfoDiv.innerHTML = '<p class="text-gray-800">Rue : ' + data.rue + '</p>' +
+                                    '<p class="text-gray-800">Latitude : ' + data.latitude + '</p>' +
+                                    '<p class="text-gray-800">Longitude : ' + data.longitude + '</p>';
+            // Initialiser la carte avec les coordonnées du lieu
+            initMap(data.latitude, data.longitude);
+        })
+        .catch(error => {
+            console.error('Erreur lors de la récupération des détails du lieu:', error.message);
+            lieuInfoDiv.innerHTML = '<p class="text-red-600">Erreur lors de la récupération des détails du lieu.</p>';
+        });
+    } else {
+        lieuInfoDiv.innerHTML = '<p class="text-gray-600">Sélectionnez un lieu pour voir les détails.</p>';
+        if (map) {
+            map.remove(); // Supprime la carte précédente
+            map = null; // Réinitialise la variable de carte
+        }
+    }
+}
+
 var map;
  
 function initMap(latitude, longitude) {
@@ -349,6 +513,18 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
- 
+ <style>
+#map {
+    position: relative;
+    z-index: 10; /* Assurez-vous que la carte a un z-index inférieur à celui du popup */
+    overflow: hidden; /* Empêche la carte de dépasser ses limites */
+}
+
+#lieuPopup {
+    z-index: 9999; /* Assurez-vous que le popup a un z-index très élevé */
+    position: fixed; /* Assurez-vous que le popup reste fixe à l'écran */
+}
+
+ </style>
  
 {% endblock %}
