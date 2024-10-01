@@ -6,6 +6,7 @@ use App\Entity\Sortie;
 use App\Form\SortieType;
 use App\Form\SortieModifType;
 use App\Repository\EtatRepository;
+use App\Repository\VilleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,47 +24,59 @@ class SortieController extends AbstractController
         }
     }
     #[Route('/sortie/create', name: 'sortie_create')]
-    public function create(Request $request, EntityManagerInterface $entityManager, EtatRepository $etatRepository, Security $security): Response
-    {
+    public function create(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        EtatRepository $etatRepository,
+        VilleRepository $villeRepository, // Injection du repository des villes
+        Security $security
+    ): Response {
         $sortie = new Sortie();
     
         // Récupérer l'utilisateur connecté pour l'organisateur
         $organisateur = $security->getUser();
         $sortie->setOrganisateur($organisateur);
-      
+       
         // Création du formulaire
         $form = $this->createForm(SortieType::class, $sortie);
         $form->handleRequest($request);
+        
+        // Récupérer les villes depuis le repository
+        $villes = $villeRepository->findAll();
     
         if ($form->isSubmitted() && $form->isValid()) {
             // Validation des dates
             if ($sortie->getDateLimiteInscription() >= $sortie->getDateHeureDebut()) {
                 $this->addFlash('error', 'La date limite d\'inscription doit être antérieure à la date de début.');
-            } else {
-                // Définir l'état de la sortie selon l'action
-                $action = $request->request->get('action');
-                if ($action === 'publish') {
-                    $etatOuverte = $etatRepository->findOneBy(['libelle' => 'Ouverte']);
-                    $sortie->setEtat($etatOuverte);
-                } else {
-                    $etatCreation = $etatRepository->findOneBy(['libelle' => 'En création']);
-                    $sortie->setEtat($etatCreation);
-                }
-
-                // Sauvegarder la sortie
-                $entityManager->persist($sortie);
-                $entityManager->flush();
-
-                // Message de confirmation et redirection
-                return $this->redirectToRoute('home');
+                return $this->render('sortie/create.html.twig', [
+                    'form' => $form->createView(),
+                    'villes' => $villes, // Passer les villes à la vue Twig
+                ]);
             }
+
+            // Définir l'état de la sortie selon l'action
+            $action = $request->request->get('action');
+            if ($action === 'publish') {
+                $etatOuverte = $etatRepository->findOneBy(['libelle' => 'Ouverte']);
+                $sortie->setEtat($etatOuverte);
+            } else {
+                $etatCreation = $etatRepository->findOneBy(['libelle' => 'En création']);
+                $sortie->setEtat($etatCreation);
+            }
+
+            // Sauvegarder la sortie
+            $entityManager->persist($sortie);
+            $entityManager->flush();
+
+            // Message de confirmation et redirection
+            return $this->redirectToRoute('home');
         }
     
         return $this->render('sortie/create.html.twig', [
             'form' => $form->createView(),
+            'villes' => $villes, // Passer les villes à la vue Twig
         ]);
     }
-
     
     #[Route('/sortie/modifier/{id}', name: 'sortie_modifier')]
     public function modifier(Sortie $sortie, Request $request, EntityManagerInterface $entityManager, Security $security, SortieListener $sortieListener): Response
