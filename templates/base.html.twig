@@ -4,37 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Sortir{% endblock %}</title>
-    <script src="https://cdn.tailwindcss.com"></script></head>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<body class="bg-gray-100">
+</head>
+<body class="bg-gray-900 text-white">
 
     <!-- Header -->
-    <header class="flex justify-between items-center p-4 bg-gray-300 rounded">
-        <div class="flex items-center">
-            <!-- Remplacement du bloc "LOGO" par l'image -->
-            <div class="w-16 h-16 flex items-center justify-center">
-                <img src="{{ asset('img/logo.png') }}" alt="Logo" class="w-full h-full object-contain">
+    <header class="bg-dark-800 p-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <!-- Logo section -->
+            <div class="flex items-center">
+                <img src="{{ asset('img/logo.png') }}" alt="Logo" class="h-8">
             </div>
-            <a href="{{ path('home') }}" class="ml-4 text-2xl font-bold">SORTIR.COM</a>
-        </div>
-        <div class="flex space-x-4 text-blue-600">
-            <!-- Lien vers l'administration visible seulement pour les admins -->
-            {% if is_granted('ROLE_ADMIN') %}
-                <a href="{{ path('admin_dashboard') }}" class="hover:underline">Administrateur</a>
-            {% endif %}
-            {% if app.user %}
-                <!-- Liens visibles lorsque l'utilisateur est connecté -->
-                <a href="{{ path('home') }}" class="hover:underline">Accueil</a>
-                <a href="{{ path('app_profile') }}" class="hover:underline">Mon profil</a>
-                <a href="{{ path('logout') }}" class="hover:underline">Se déconnecter</a>
-            {% else %}
-                <!-- Liens visibles lorsque l'utilisateur n'est pas connecté -->
-                <a href="{{ path('login') }}" class="hover:underline">Se connecter</a>
-                <a href="{{ path('app_register') }}" class="hover:underline">S'inscrire</a>
-            {% endif %}
+
+            <!-- Navigation Menu -->
+            <nav class="flex space-x-8">
+                {# <a href="{{ path('product') }}" class="text-white hover:text-blue-500">Product</a>
+                <a href="{{ path('features') }}" class="text-white hover:text-blue-500">Features</a>
+                <a href="{{ path('marketplace') }}" class="text-white hover:text-blue-500">Marketplace</a>
+                <a href="{{ path('company') }}" class="text-white hover:text-blue-500">Company</a> #}
+            </nav>
+
+            <!-- Authentication Section -->
+            <div class="flex space-x-4">
+                {% if is_granted('ROLE_ADMIN') %}
+                    <a href="{{ path('admin_dashboard') }}" class="text-white hover:text-blue-500">Admin</a>
+                {% endif %}
+                {% if app.user %}
+                    <a href="{{ path('app_profile') }}" class="text-white hover:text-blue-500">Mon profil</a>
+                    <a href="{{ path('logout') }}" class="text-white hover:text-blue-500">Se déconnecter</a>
+                {% else %}
+
+                {% endif %}
+            </div>
         </div>
     </header>
 
