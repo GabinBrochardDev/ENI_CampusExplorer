@@ -28,7 +28,7 @@
 
                     <p class="text-lg">
                         <strong class="font-semibold">Date limite d'inscription :</strong> 
-                        {{ sortie.dateLimiteInscription ? sortie.dateLimiteInscription|date('d/m/Y') : 'N/A' }}
+                        {{ sortie.dateLimiteInscription ? sortie.dateLimiteInscription|date('d/m/Y H:i') : 'N/A' }}
                     </p>
 
                     <p class="text-lg">
@@ -63,7 +63,7 @@
 
                     <p class="text-lg">
                         <strong class="font-semibold">Durée :</strong> 
-                        {{ sortie.duree }} heures
+                        {{ sortie.duree }} minutes
                     </p>
 
                     <p class="text-lg">
