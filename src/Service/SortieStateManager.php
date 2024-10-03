@@ -25,8 +25,7 @@ class SortieStateManager
         dump('Date limite inscription:', $sortie->getDateLimiteInscription()->format('Y-m-d H:i:s'));
         dump('Date début sortie:', $sortie->getDateHeureDebut()->format('Y-m-d H:i:s'));
         dump('Etat actuel:', $sortie->getEtat()->getLibelle());
-        $heureFin = (clone $sortie->getDateHeureDebut())->modify('+' . $sortie->getDuree() . ' minutes');
-        dump('Heure de fin de la sortie:', $heureFin->format('Y-m-d H:i:s'));
+
         // Ne pas modifier l'état si la sortie est en "En création" ou "Annulée"
         if (in_array($sortie->getEtat()->getLibelle(), ['En création', 'Annulée'])) {
             return;

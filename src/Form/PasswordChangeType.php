@@ -13,7 +13,7 @@ class PasswordChangeType extends AbstractType
     {
         $builder
             ->add('newPassword', PasswordType::class, [
-                'label' => 'Nouveau mot de passe',
+                'label' => 'Mot de passe',
                 'mapped' => false,
                 'required' => true,
                 'attr' => ['class' => 'form-control'],

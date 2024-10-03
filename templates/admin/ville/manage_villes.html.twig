@@ -3,7 +3,8 @@
 {% block title %}Gérer les villes{% endblock %}
 
 {% block body %}
-    <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Gérer les villes</h1>
+<div class="container mx-auto p-4">
+    <h1 class="text-3xl font-bold mb-6 text-center text-gray-800 my-12">Gérer les villes</h1>
 
     <!-- Formulaire de recherche -->
     <div class="flex justify-center mb-8">
@@ -13,12 +14,12 @@
         <div class="flex w-full">
             <!-- Champ de recherche -->
             {{ form_widget(form.nom, { 'attr': { 
-                'class': 'w-full p-3 rounded-l-md border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:outline-none transition duration-300', 
+                'class': 'w-full p-2 rounded-l-md border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:outline-none transition duration-300', 
                 'placeholder': 'Rechercher une ville' 
             } }) }}
 
             <!-- Bouton de recherche -->
-            <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-300">
+            <button type="submit" class="bg-[#2C2C2C] text-white px-3 py-1 rounded-r-md transition duration-300 ease-in-out transform hover:scale-105">
                 Rechercher
             </button>
         </div>
@@ -27,58 +28,64 @@
     </div>
 
     <!-- Tableau des villes -->
-    <div class="overflow-x-auto max-w-4xl mx-auto">
-        <table class="table-auto w-full border border-gray-300 shadow-lg rounded-lg">
-            <thead class="bg-gray-100">
+    <div class="overflow-x-auto max-w-4xl mx-auto"> <!-- Augmenté la largeur maximale ici -->
+        <table class="table-auto w-full border border-gray-300 shadow-lg rounded-lg bg-white">
+            <thead class="bg-[#2C2C2C] text-white shadow-lg sticky top-0 z-10">
                 <tr>
-                    <th class="px-6 py-3 text-left text-gray-700 font-semibold text-center">Ville</th>
-                    <th class="px-6 py-3 text-left text-gray-700 font-semibold text-center">Code postal</th>
-                    <th class="px-6 py-3 text-left text-gray-700 font-semibold text-center">Actions</th>
+                    <th class="px-4 py-2 text-left font-semibold text-center">Ville</th>
+                    <th class="px-4 py-2 text-left font-semibold text-center">Code postal</th>
+                    <th class="px-4 py-2 text-left font-semibold text-center">Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="overflow-y-auto max-h-80"> <!-- Limite la hauteur du corps du tableau -->
                 {% for ville in villeList %}
-                    <tr class="border-t {% if loop.index is odd %}bg-white{% else %}bg-gray-50{% endif %} hover:bg-gray-100 transition-colors">
-                        <td class="px-6 py-4 text-gray-800 text-center">{{ ville.nom }}</td>
-                        <td class="px-6 py-4 text-gray-800 text-center">{{ ville.codePostal }}</td>
-                        <td class="px-6 py-4 text-center">
-                            <a href="{{ path('admin_edit_ville', {id: ville.id}) }}" class="text-blue-600 hover:text-blue-800 transition-colors">Modifier</a>
+                    <tr class="border-t {% if loop.index is odd %}bg-white{% else %}bg-gray-50{% endif %} hover:bg-[#F3F4F6] transition-colors h-8">
+                        <td class="px-4 py-1 text-gray-800 text-center">{{ ville.nom }}</td>
+                        <td class="px-4 py-1 text-gray-800 text-center">{{ ville.codePostal }}</td>
+                        <td class="px-4 py-1 text-center flex justify-center">
+                            <a href="{{ path('admin_edit_ville', {id: ville.id}) }}" class="bg-transparent text-yellow-500 border border-yellow-500 px-3 py-1 rounded transition duration-300 ease-in-out transform hover:scale-105 w-24 text-center">
+                                Modifier
+                            </a>
                             <a href="#" 
-                               class="text-red-600 hover:text-red-800 transition-colors ml-4"
+                               class="bg-transparent text-red-500 border border-red-500 px-3 py-1 rounded transition duration-300 ease-in-out transform hover:scale-105 ml-2"
                                onclick="deleteVille('{{ path('admin_delete_ville', {id: ville.id}) }}'); return false;">
                                 Supprimer
                             </a>
                         </td>
                     </tr>
+                {% else %}
+                    <tr class="bg-gray-100 border-t">
+                        <td colspan="3" class="text-center py-2">Aucune ville trouvée</td>
+                    </tr>
                 {% endfor %}
-                <tr class="bg-gray-100 border-t">
-                    <td colspan="3" class="text-center py-4">
-                        <a href="{{ path('admin_add_ville') }}" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 transition duration-300">
-                            Ajouter une ville
-                        </a>
-                    </td>
-                </tr>
             </tbody>
         </table>
     </div>
 
+    <div class="mt-4 flex justify-center">
+        <a href="{{ path('admin_add_ville') }}" class="bg-[#2C2C2C] text-white font-semibold px-6 py-2 rounded-lg shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring focus:ring-gray-300">
+            Ajouter une ville
+        </a>
+    </div>
+
     <script>
-    function deleteVille(url) {
-        Swal.fire({
-            title: 'Êtes-vous sûr ?',
-            text: "Cette action est irréversible !",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Oui, supprimer !',
-            cancelButtonText: 'Annuler'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = url;
-            }
-        });
-    }
+        function deleteVille(url) {
+            Swal.fire({
+                title: 'Êtes-vous sûr ?',
+                text: "Cette action est irréversible !",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Oui, supprimer !',
+                cancelButtonText: 'Annuler'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
+                }
+            });
+        }
     </script>
 
+</div>
 {% endblock %}
