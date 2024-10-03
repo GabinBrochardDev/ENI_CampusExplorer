@@ -28,6 +28,9 @@ security:
                 lifetime: 604800
                 path: /
                 always_remember_me: false
+            http_basic:  # Ajout de HTTP Basic
+                realm: "Secured Area"
+            # Spécification de l'entry point pour éviter le conflit
             # Désactiver HTTP Basic si tu n'en as pas besoin
             # http_basic:
             #     realm: "Secured Area"
