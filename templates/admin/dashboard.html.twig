@@ -4,22 +4,25 @@
 
 {% block body %}
     <div class="flex flex-col items-center justify-center my-12">
-        <h1 class="text-4xl font-extrabold mb-10 text-white">Page d'administration</h1>
+        <h1 class="text-4xl font-extrabold mb-10 text-[#2C2C2C]">Page d'administration</h1>
+
+         <!-- Élément de séparation -->
+        <hr class="w-1/2 border-t-2 border-gray-300 mb-4">
         
         <!-- Container for buttons -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-md">
             <!-- Bouton Gérer les campus -->
-            <a href="{{ path('admin_manage_campus') }}" class="text-white bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg text-center shadow-md transition duration-300 ease-in-out">
+            <a href="{{ path('admin_manage_campus') }}" class="mt-6 bg-[#2C2C2C] text-white font-semibold px-8 py-3 rounded-lg shadow-lg hover:shadow-xl focus:outline-none focus:ring focus:ring-gray-300 transition duration-300 ease-in-out transform hover:scale-105 text-center">
                 Gérer les campus
             </a>
 
             <!-- Bouton Gérer les villes -->
-            <a href="{{ path('admin_manage_villes') }}" class="text-white bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg text-center shadow-md transition duration-300 ease-in-out">
+            <a href="{{ path('admin_manage_villes') }}" class="mt-6 bg-[#2C2C2C] text-white font-semibold px-8 py-3 rounded-lg shadow-lg hover:shadow-xl focus:outline-none focus:ring focus:ring-gray-300 transition duration-300 ease-in-out transform hover:scale-105 text-center">
                 Gérer les villes
             </a>
 
             <!-- Bouton Gérer les utilisateurs -->
-            <a href="{{ path('admin_manage_users') }}" class="text-white bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg text-center shadow-md transition duration-300 ease-in-out">
+            <a href="{{ path('admin_manage_users') }}" class="mt-6 bg-[#2C2C2C] text-white font-semibold px-8 py-3 rounded-lg shadow-lg hover:shadow-xl focus:outline-none focus:ring focus:ring-gray-300 transition duration-300 ease-in-out transform hover:scale-105 text-center">
                 Gérer les utilisateurs
             </a>
         </div>

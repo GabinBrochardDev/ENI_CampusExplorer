@@ -208,7 +208,7 @@
 </div>
  
 <script>
-    function openCancelModal(id, name, recapUrl, submitUrl) {
+      function openCancelModal(id, name, recapUrl, submitUrl) {
         document.getElementById('recap').innerHTML = "Êtes-vous sûr de vouloir annuler la sortie : " + name + " ?";
         document.getElementById('cancelForm').action = submitUrl;
         document.getElementById('cancelModal').classList.remove('hidden');

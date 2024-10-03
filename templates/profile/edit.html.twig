@@ -4,9 +4,9 @@
 
 {% block body %}
 <div class="container mx-auto p-6">
-    <h1 class="text-3xl font-bold mb-6">Mon Profil</h1>
+    <h1 class="text-3xl font-bold mb-6 text-center text-gray-800 my-12">Mon Profil</h1>
 
-    <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg mx-auto">
+    <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg mx-auto space-y-6">
         {{ form_start(form, {'attr': {'class': 'space-y-4'}}) }}
 
             {{ form_row(form.pseudo, {'attr': {'class': 'border border-gray-300 rounded-md p-2 w-full'}}) }}
@@ -31,7 +31,7 @@
                 <div>
                     {% if participant.photo %}
                         <p>Photo actuelle :</p>
-                            <img src="{{ asset('uploads/profile_photos/' ~ participant.photo) }}" alt="Photo de profil" class="w-32 h-32 rounded-full">
+                        <img src="{{ asset('uploads/profile_photos/' ~ participant.photo) }}" alt="Photo de profil" class="w-32 h-32 rounded-full">
                     {% else %}
                         <p>Il n'y a pas encore de photo de profil.</p>
                     {% endif %}
@@ -48,12 +48,13 @@
             </div>
 
             <div class="text-center">
-                <button type="submit" class="mt-4 bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <button type="submit" class="mt-4 bg-[#2C2C2C] text-white px-6 py-3 rounded-md shadow-md hover:bg-gray-800 focus:outline-none focus:ring focus:ring-gray-300 transition duration-300">
                     Mettre à jour
                 </button>
             </div>
 
         {{ form_end(form) }}
+        
 
     </div>
 </div>

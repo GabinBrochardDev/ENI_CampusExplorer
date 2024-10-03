@@ -41,12 +41,13 @@ class ParticipantType extends AbstractType
             ->add('campus', null, [
                 'label' => 'Campus',
             ])
-            ->add('isActive', null, [
+            ->add('isActive', CheckboxType::class, [
                 'label' => 'Actif',
+                'required' => false,
             ])
             ->add('isAdmin', CheckboxType::class, [
                 'label'    => 'Administrateur',
-                'mapped'   => false,
+                'mapped'   => false, // Ce champ n'est pas mappé à l'entité directement
                 'required' => false,
                 'data'     => in_array('ROLE_ADMIN', $builder->getData()->getRoles()),
             ])
