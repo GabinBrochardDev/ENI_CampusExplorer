@@ -8,7 +8,7 @@ security:
         app_user_provider:
             entity:
                 class: App\Entity\Participant
-                property: email
+                property: email  # On garde la propriété email ici car tu gères login/pseudo dans l'authentificateur
 
     firewalls:
         main:
@@ -18,7 +18,7 @@ security:
                 login_path: login
                 check_path: login
                 default_target_path: home
-                username_parameter: _nom
+                username_parameter: _login  # Utilisation d'un paramètre générique pour login (email ou pseudo)
                 password_parameter: _password
             logout:
                 path: logout
@@ -28,14 +28,15 @@ security:
                 lifetime: 604800
                 path: /
                 always_remember_me: false
-            http_basic:  # Ajout de HTTP Basic
-                realm: "Secured Area"
+            # Désactiver HTTP Basic si tu n'en as pas besoin
+            # http_basic:
+            #     realm: "Secured Area"
             # Spécification de l'entry point pour éviter le conflit
-            entry_point: form_login
-
+            entry_point: form_login  # Garder form_login comme entry point principal
     access_control:
         - { path: ^/login }
         - { path: ^/register }
+        - { path: ^/reset-password }
         - { path: ^/home, roles: ROLE_USER }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/api/sorties, roles: ROLE_USER }

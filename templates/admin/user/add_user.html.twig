@@ -3,83 +3,145 @@
 {% block title %}Ajouter un utilisateur{% endblock %}
 
 {% block body %}
-    <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Ajouter un utilisateur</h1>
+    <h1 class="text-3xl font-bold mb-6 text-center text-gray-800 my-12">Ajouter un utilisateur</h1>
 
-    <div class="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-lg">
-        {{ form_start(form) }}
+    <!-- Conteneur de formulaire avec espacement avant le footer -->
+    <div class="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-lg mb-24 space-y-6">
 
-        <!-- Champ Pseudo -->
-        <div class="mb-6">
-            {{ form_row(form.pseudo, { 'attr': { 
-                'class': 'w-full px-4 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 transition duration-300', 
-                'placeholder': 'Pseudo' 
-            } }) }}
+        <!-- Début du formulaire -->
+        {{ form_start(form, { 'attr': { 'class': 'space-y-6' } }) }}
+
+        <!-- Informations utilisateur -->
+        <div class="space-y-6">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800 text-center">Informations utilisateur</h2>
+
+            <!-- Champs Nom -->
+            <div>
+                {{ form_row(form.nom, { 'attr': { 'class': 'w-full p-3 rounded-md border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:outline-none transition duration-300', 'placeholder': 'Nom' } }) }}
+            </div>
+
+            <!-- Champs Prénom -->
+            <div>
+                {{ form_row(form.prenom, { 'attr': { 'class': 'w-full p-3 rounded-md border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:outline-none transition duration-300', 'placeholder': 'Prénom' } }) }}
+            </div>
+
+            <!-- Champs Pseudo -->
+            <div>
+                {{ form_row(form.pseudo, { 'attr': { 'class': 'w-full p-3 rounded-md border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:outline-none transition duration-300', 'placeholder': 'Pseudo' } }) }}
+            </div>
+
+            <!-- Champs Email -->
+            <div>
+                {{ form_row(form.email, { 'attr': { 'class': 'w-full p-3 rounded-md border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:outline-none transition duration-300', 'placeholder': 'Email' } }) }}
+            </div>
+
+            <!-- Champs Mot de passe -->
+            <div>
+                {{ form_row(passwordForm.newPassword, { 'attr': { 'class': 'w-full p-3 rounded-md border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:outline-none transition duration-300', 'placeholder': 'Mot de passe' } }) }}
+            </div>
+
+            <!-- Champs Téléphone -->
+            <div>
+                {{ form_row(form.telephone, { 'attr': { 'class': 'w-full p-3 rounded-md border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:outline-none transition duration-300', 'placeholder': 'Téléphone' } }) }}
+            </div>
+
+            <!-- Champs Campus -->
+            <div>
+                {{ form_row(form.campus, { 'attr': { 'class': 'w-full p-3 rounded-md border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:outline-none transition duration-300' } }) }}
+            </div>
+
+            <!-- Champs Actif (Switch personnalisé) -->
+            <div class="flex flex-col items-center mb-4">
+                <label for="form_isActive" class="block text-sm font-medium text-gray-900 text-center"> Actif </label>
+                <div class="relative mt-2">
+                    <label class="inline-flex items-center cursor-pointer">
+                        {{ form_widget(form.isActive, { 'attr': { 'class': 'sr-only peer' } }) }} 
+                        <div class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:bg-[#2C2C2C] peer-focus:ring-4 peer-focus:ring-gray-300 transition-colors"></div>
+                        <div class="dot absolute left-1 top-0.5 bg-white w-4 h-4 rounded-full transition peer-checked:translate-x-full"></div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Champs Administrateur (Switch personnalisé) -->
+            <div class="flex flex-col items-center mb-4">
+                <label for="form_isAdmin" class="block text-sm font-medium text-gray-900 text-center"> Administrateur </label>
+                <div class="relative mt-2">
+                    <label class="inline-flex items-center cursor-pointer">
+                        {{ form_widget(form.isAdmin, { 'attr': { 'class': 'sr-only peer' } }) }} 
+                        <div class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:bg-[#2C2C2C] peer-focus:ring-4 peer-focus:ring-gray-300 transition-colors"></div>
+                        <div class="dot absolute left-1 top-0.5 bg-white w-4 h-4 rounded-full transition peer-checked:translate-x-full"></div>
+                    </label>
+                </div>
+            </div>
+
+                   <!-- Section pour la photo actuelle et la prévisualisation de la nouvelle photo -->
+           <div class="mb-6">
+    <div class="mb-4 flex justify-center items-center">
+        <div>
+            {% if participant.photo %}
+                <p>Photo actuelle :</p>
+                <img src="{{ asset('uploads/profile_photos/' ~ participant.photo) }}" alt="Photo de profil" class="w-32 h-32 rounded-full">
+            {% endif %}
+            <p id="no-photo-text" {% if participant.photo %} style="display: none;" {% endif %}>Il n'y a pas encore de photo de profil.</p>
         </div>
 
-        <!-- Champ Nom -->
-        <div class="mb-6">
-            {{ form_row(form.nom, { 'attr': { 
-                'class': 'w-full px-4 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 transition duration-300', 
-                'placeholder': 'Nom' 
-            } }) }}
+        <!-- Centre l'image de prévisualisation -->
+        <div class="flex justify-center items-center">
+            <div>
+                <p id="new-photo-label" style="display: none;" class="text-center">Nouvelle photo :</p>
+                <img id="preview-image" class="mb-2 h-32 w-32 rounded-full object-cover" style="display: none;" alt="Aperçu de la nouvelle photo">
+            </div>
         </div>
-
-        <!-- Champ Prénom -->
-        <div class="mb-6">
-            {{ form_row(form.prenom, { 'attr': { 
-                'class': 'w-full px-4 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 transition duration-300', 
-                'placeholder': 'Prénom' 
-            } }) }}
-        </div>
-
-        <!-- Champ Mot de passe -->
-        <div class="mb-6">
-            {{ form_row(form.password, { 'attr': { 
-                'class': 'w-full px-4 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 transition duration-300', 
-                'placeholder': 'Mot de passe' 
-            } }) }}
-        </div>
-
-        <!-- Champ Email -->
-        <div class="mb-6">
-            {{ form_row(form.email, { 'attr': { 
-                'class': 'w-full px-4 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 transition duration-300', 
-                'placeholder': 'Email' 
-            } }) }}
-        </div>
-
-        <!-- Champ Téléphone -->
-        <div class="mb-6">
-            {{ form_row(form.telephone, { 'attr': { 
-                'class': 'w-full px-4 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 transition duration-300', 
-                'placeholder': 'Téléphone' 
-            } }) }}
-        </div>
-
-        <!-- Champ Campus -->
-        <div class="mb-6">
-            {{ form_row(form.campus, { 'attr': { 
-                'class': 'w-full px-4 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 transition duration-300' 
-            } }) }}
-        </div>
-
-        <!-- Champ Actif -->
-        <div class="flex items-center mb-6">
-            {{ form_widget(form.isActive, { 'attr': { 'class': 'rounded-md mr-2' } }) }}
-            <label for="form_isActive" class="text-gray-700">Actif</label>
-        </div>
-
-        <!-- Champ Admin -->
-        <div class="flex items-center mb-6">
-            {{ form_widget(form.isAdmin, { 'attr': { 'class': 'rounded-md mr-2' } }) }}
-            <label for="form_isAdmin" class="text-gray-700">Administrateur</label>
-        </div>
-
-        <!-- Bouton Ajouter -->
-        <div class="text-center">
-            <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 transition duration-300">Ajouter</button>
-        </div>
-
-        {{ form_end(form) }}
     </div>
+
+    <div class="text-center">
+        {{ form_row(form.photo, {'attr': {'class': 'border border-gray-300 rounded-md p-2 w-full', 'onchange': 'previewImage(event)'}}) }}
+    </div>
+</div>
+
+
+            <!-- Bouton Ajouter -->
+            <div class="text-center">
+                <button type="submit" class="w-2/3 bg-[#2C2C2C] text-white px-6 py-3 rounded-md shadow-md hover:bg-gray-800 focus:outline-none focus:ring focus:ring-gray-300 transition duration-300">
+                    Ajouter l'utilisateur
+                </button>
+            </div>
+
+            <!-- JavaScript pour prévisualiser la nouvelle photo et afficher le nom du fichier -->
+            <script>
+                document.getElementById('custom-file-label').addEventListener('click', function () {
+                    document.getElementById('form_photo').click(); // Simule le clic sur l'input de fichier caché
+                });
+
+                function previewImage(event) {
+                    const file = event.target.files[0];
+                    const preview = document.getElementById('preview-image');
+                    const label = document.getElementById('new-photo-label');
+                    const fileName = document.getElementById('file-chosen');
+                    const noPhotoText = document.getElementById('no-photo-text');
+
+                    if (file) {
+                        const reader = new FileReader();
+
+                        reader.onload = function (e) {
+                            preview.src = e.target.result;
+                            preview.style.display = 'block';
+                            label.style.display = 'block';
+                            if (noPhotoText) noPhotoText.style.display = 'none';  // Masquer le texte "Il n'y a pas encore de photo de profil"
+                        };
+
+                        reader.readAsDataURL(file);
+                        fileName.textContent = file.name;  // Afficher le nom du fichier sélectionné
+                    } else {
+                        preview.src = '';
+                        preview.style.display = 'none';
+                        label.style.display = 'none';
+                        if (noPhotoText) noPhotoText.style.display = 'block';  // Remettre le texte si aucune photo n'est sélectionnée
+                        fileName.textContent = '';  // Réinitialiser le texte du nom du fichier
+                    }
+                }
+            </script>
+        </div>
+    </div>
+
 {% endblock %}

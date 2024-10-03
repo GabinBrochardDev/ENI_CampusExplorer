@@ -21,3 +21,12 @@ api_sorties:
     path: /api/sorties
     controller: App\Controller\SortieApiController::getSorties
     methods: [GET]
+
+create_lieu_form:
+    path: /create-lieu-form
+    controller: App\Controller\LieuController::createLieuForm
+
+create_lieu:
+    path: /create-lieu
+    controller: App\Controller\LieuController::createLieu
+    methods: POST

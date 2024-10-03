@@ -47,38 +47,65 @@ class UserController extends AbstractController
         ]);
     }
 
+
+
     #[Route('/admin/manage/user/add', name: 'admin_add_user')]
-    public function addUser(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
-    {
-        $user = new Participant();
-        $form = $this->createForm(ParticipantType::class, $user);
+    public function addUser(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher, SluggerInterface $slugger): Response
+{
+    $user = new Participant();
 
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $plainPassword = $form->get('password')->getData();
-            $encodedPassword = $passwordHasher->hashPassword($user, $plainPassword);
+    // Créer les deux formulaires
+    $form = $this->createForm(ParticipantType::class, $user);
+    $passwordForm = $this->createForm(PasswordChangeType::class);
+
+    // Manipuler une seule requête
+    $form->handleRequest($request);
+    $passwordForm->handleRequest($request);
+
+    // Vérifiez si le formulaire est soumis et valide
+    if ($form->isSubmitted() && $form->isValid()) {
+
+        // Gestion du mot de passe si présent dans le formulaire de mot de passe
+        $newPassword = $passwordForm->get('newPassword')->getData();
+        if ($newPassword) {
+            $encodedPassword = $passwordHasher->hashPassword($user, $newPassword);
             $user->setPassword($encodedPassword);
-
-            if ($form->get('isAdmin')->getData()) {
-                $roles = $user->getRoles();
-                $roles[] = 'ROLE_ADMIN';
-                $user->setRoles($roles);
-            } else {
-                $roles = array_diff($user->getRoles(), ['ROLE_ADMIN']);
-                $user->setRoles($roles);
-            }
-
-            $entityManager->persist($user);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('admin_manage_users');
         }
 
-        return $this->render('admin/user/add_user.html.twig', [
-            'form' => $form->createView(),
-        ]);
+        // Gestion de la photo de profil
+        $photoFile = $form->get('photo')->getData();
+        if ($photoFile) {
+            $originalFilename = pathinfo($photoFile->getClientOriginalName(), PATHINFO_FILENAME);
+            $safeFilename = $slugger->slug($originalFilename);
+            $newFilename = $safeFilename . '-' . uniqid() . '.' . $photoFile->guessExtension();
+
+            try {
+                $photoFile->move(
+                    $this->getParameter('profile_photos_directory'),
+                    $newFilename
+                );
+            } catch (FileException $e) {
+                $this->addFlash('danger', 'Erreur lors du téléchargement de la photo.');
+            }
+
+            // Stocker le nom du fichier dans l'entité Participant
+            $user->setPhoto($newFilename);
+        }
+
+        // Sauvegarder l'utilisateur
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        return $this->redirectToRoute('admin_manage_users');
     }
 
+    // Passer la variable `participant` à la vue Twig
+    return $this->render('admin/user/add_user.html.twig', [
+        'form' => $form->createView(),
+        'passwordForm' => $passwordForm->createView(),
+        'participant' => $user,  // Ici on passe l'utilisateur en tant que participant
+    ]);
+}
     #[Route('/admin/manage/user/edit/{id}', name: 'admin_edit_user')]
     public function editUser(
         Participant $user, 
