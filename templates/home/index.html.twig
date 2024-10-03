@@ -1,100 +1,105 @@
 {% extends 'base.html.twig' %}
- 
+
 {% block title %}Accueil - Sortir{% endblock %}
- 
+
 {% block body %}
-<div class="container mx-auto p-4">
-    <!-- Filter Section -->
-    <div class="mt-6 p-8  rounded-xl shadow-lg border border-white bg-white">
-        <h2 class="font-bold text-2xl mb-6 ">Filtrer les sorties</h2>
-        <form method="get" action="{{ path('home') }}">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Campus Filter -->
-                <div class="flex flex-col">
-                    <label for="campus" class="font-semibold ">Campus</label>
-                    <select id="campus" name="campus" class="border border-gray-300 p-2 text-gray-800 rounded-lg focus:ring focus:ring-gray-200 shadow-sm">
-                        <option value="">Tous</option>
-                        {% for campus in campuses %}
-                            <option  value="{{ campus.id }}" {{ campus.id == app.request.get('campus') ? 'selected' : '' }}>
-                                {{ campus.nom }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
- 
-                <!-- Search Filter -->
-                <div class="flex flex-col">
-                    <label for="search" class="font-semibold ">Le nom de la sortie contient</label>
-                    <input type="text" id="search" name="search" class="border border-gray-300 text-gray-800 p-2 rounded-lg focus:ring focus:ring-gray-200 shadow-sm" value="{{ app.request.get('search') }}">
-                </div>
- 
-                <!-- Date Filter -->
-                <div class="flex flex-col">
-                    <label class="font-semibold ">Entre</label>
-                    <div class="flex space-x-2 ">
-                        <input type="date" name="start_date" class="border border-gray-300 p-2 rounded-lg focus:ring focus:ring-gray-200 shadow-sm" value="{{ app.request.get('start_date') }}">
-                        <span class="">et</span>
-                        <input type="date" name="end_date" class="border border-gray-300 p-2 rounded-lg focus:ring focus:ring-gray-200 shadow-sm" value="{{ app.request.get('end_date') }}">
+<div class="relative flex flex-col">
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="w-64 bg-white fixed top-0 left-0 h-full transition-transform transform lg:translate-x-0 -translate-x-full lg:block shadow-xl overflow-y-hidden">
+        <div class="flex flex-col mt-10 px-6">
+            <h1 class="text-2xl font-semibold mb-6">Filtrer les sorties</h1>
+            <form method="get" action="{{ path('home') }}">
+                <div class="grid grid-cols-1 gap-6">
+                    <!-- Filtre campus -->
+                    <div class="flex flex-col">
+                        <label for="campus" class="font-semibold">Campus</label>
+                        <select id="campus" name="campus" class="border border-gray-300 p-2 rounded-lg focus:ring focus:ring-gray-200 shadow-sm">
+                            <option value="">Tous</option>
+                            {% for campus in campuses %}
+                                <option value="{{ campus.id }}" {{ campus.id == app.request.get('campus') ? 'selected' : '' }}>
+                                    {{ campus.nom }}
+                                </option>
+                            {% endfor %}
+                        </select>
                     </div>
+
+                    <!-- Barre de recherche -->
+                    <div class="flex flex-col">
+                        <label for="search" class="font-semibold">Le nom de la sortie contient</label>
+                        <input type="text" id="search" name="search" class="border border-gray-300 text-gray-800 p-2 rounded-lg focus:ring focus:ring-gray-200 shadow-sm" value="{{ app.request.get('search') }}">
+                    </div>
+
+                    <!-- Filtre date -->
+                    <div class="flex flex-col">
+                        <label class="font-semibold">Entre</label>
+                        <div class="flex flex-col space-y-2">
+                            <input type="date" name="start_date" class="border border-gray-300 p-2 rounded-lg focus:ring focus:ring-gray-200 shadow-sm" value="{{ app.request.get('start_date') }}">
+                            <label class="font-semibold">Et</label>
+                            <input type="date" name="end_date" class="border border-gray-300 p-2 rounded-lg focus:ring focus:ring-gray-200 shadow-sm" value="{{ app.request.get('end_date') }}">
+                        </div>
+                    </div>
+
+                    <!-- Autres filtres -->
+                    <div class="flex flex-col space-y-2 mt-6">
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="organisateur" name="organisateur" {{ app.request.get('organisateur') ? 'checked' : '' }} class="shadow-sm">
+                            <label for="organisateur">Sorties dont je suis l'organisateur/trice</label>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="inscrit" name="inscrit" {{ app.request.get('inscrit') ? 'checked' : '' }} class="shadow-sm">
+                            <label for="inscrit">Sorties auxquelles je suis inscrit/e</label>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="non-inscrit" name="non-inscrit" {{ app.request.get('non-inscrit') ? 'checked' : '' }} class="shadow-sm">
+                            <label for="non-inscrit">Sorties auxquelles je ne suis pas inscrit/e</label>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="terminees" name="terminees" {{ app.request.get('terminees') ? 'checked' : '' }} class="shadow-sm">
+                            <label for="terminees">Sorties terminées</label>
+                        </div>
+                    </div>
+
+                    <!-- Bouton de recherche -->
+                    <button type="submit" class="mt-6 bg-gray-800 text-white font-semibold px-6 py-2 rounded-lg shadow-lg hover:shadow-xl focus:outline-none focus:ring focus:ring-gray-300 transition duration-300 ease-in-out transform hover:scale-105">
+                        Rechercher
+                    </button>
                 </div>
-            </div>
- 
-            <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4 mt-6">
-                <div class="flex items-center space-x-2">
-                    <input type="checkbox" id="organisateur" name="organisateur" {{ app.request.get('organisateur') ? 'checked' : '' }} class="shadow-sm">
-                    <label for="organisateur" class="">Sorties dont je suis l'organisateur/trice</label>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <input type="checkbox" id="inscrit" name="inscrit" {{ app.request.get('inscrit') ? 'checked' : '' }} class="shadow-sm">
-                    <label for="inscrit" class="">Sorties auxquelles je suis inscrit/e</label>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <input type="checkbox" id="non-inscrit" name="non-inscrit" {{ app.request.get('non-inscrit') ? 'checked' : '' }} class="shadow-sm">
-                    <label for="non-inscrit" class="">Sorties auxquelles je ne suis pas inscrit/e</label>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <input type="checkbox" id="terminees" name="terminees" {{ app.request.get('terminees') ? 'checked' : '' }} class="shadow-sm">
-                    <label for="terminees" class="">Sorties terminées</label>
-                </div>
-            </div>
- 
-            <button type="submit" class="mt-6 hover:bg-gary-200 bg-[#2C2C2C] text-white font-semibold px-6 py-2 rounded-lg shadow-lg hover:shadow-xl focus:outline-none focus:ring focus:ring-gray-300 transition duration-300 ease-in-out transform hover:scale-105">
-                Rechercher
-            </button>
-        </form>
+            </form>
+        </div>
     </div>
- 
-    <!-- Table Section -->
-    <div class="mt-16 p-6 rounded-lg shadow-lg  border-white bg-white">
-    <div class="overflow-y-auto max-h-96">
-            <table class="min-w-full table-auto">
-            <thead class="bg-[#2C2C2C] text-white shadow-lg sticky top-0 z-10">
-                <tr class="text-left">
-                    <th class="p-4 min-w-[150px] rounded-tl-lg">Nom de la sortie</th>
-                    <th class="p-4 min-w-[120px]">Date de la sortie</th>
-                    <th class="p-4 min-w-[120px]">Clôture</th>
-                    <th class="p-4 min-w-[100px]">Inscrits/Places</th>
-                    <th class="p-4 min-w-[100px]">Etat</th>
-                    <th class="p-4 min-w-[80px]">Inscrit</th>
-                    <th class="p-4 min-w-[150px]">Organisateur</th>
-                    <th class="p-4 min-w-[150px] rounded-tr-lg text-center">Actions</th>
-                </tr>
-            </thead>
- 
-            <tbody>
-                {% for sortie in sorties %}
-                    <tr class="border-b hover:bg-[#F3F4F6]">
-                        <td class="p-2 whitespace-normal break-words">{{ sortie.nom }}</td>
-                        <td class="p-2">{{ sortie.dateHeureDebut ? sortie.dateHeureDebut|date('d/m/Y') : '' }}</td>
-                        <td class="p-2">{{ sortie.dateLimiteInscription ? sortie.dateLimiteInscription|date('d/m/Y') : '' }}</td>
-                        <td class="p-2">{{ sortie.estinscrit|length }}/{{ sortie.nbInscriptionMax }}</td>
-                        <td class="p-2">{{ sortie.etat ? sortie.etat.libelle : '' }}</td>
-             
-                        <td class="p-2">{{ sortie.estinscrit.contains(app.user) ? 'X' : '' }}</td>
-                        <td class="p-2 text-gray-600 hover:underline">
-                            <a href="{{ path('app_participant_detail', {'id': sortie.organisateur.id}) }}">{{ sortie.organisateur.nom }}</a>
-                        </td>
-                        <td class="p-2 whitespace-normal break-words">
+
+    <!-- Main Content -->
+    <div class="flex-1 ml-[5rem] mr-[-7rem] p-4 overflow-y-auto flex-grow">
+        <div class="w-full max-w-8xl mx-auto bg-white rounded-lg shadow-lg p-5">
+            <!-- Table des sorties -->
+            <div class="overflow-x-auto h-[39rem] overflow-y-auto">
+                <table class="w-full table-auto">
+                    <thead class="bg-[#2C2C2C] text-white shadow-lg sticky top-0 z-10">
+                        <tr class="text-left">
+                            <th class="p-4 rounded-tl-lg">Nom de la sortie</th>
+                            <th class="p-4">Date de la sortie</th>
+                            <th class="p-4">Clôture</th>
+                            <th class="p-4">Inscrits/Places</th>
+                            <th class="p-4">Etat</th>
+                            <th class="p-4">Inscrit</th>
+                            <th class="p-4">Organisateur</th>
+                            <th class="p-4 rounded-tr-lg text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sortie in sorties %}
+                            <tr class="border-b hover:bg-[#F3F4F6]">
+                                <td class="p-2 whitespace-normal break-words">{{ sortie.nom }}</td>
+                                <td class="p-2">{{ sortie.dateHeureDebut ? sortie.dateHeureDebut|date('d/m/Y') : '' }}</td>
+                                <td class="p-2">{{ sortie.dateLimiteInscription ? sortie.dateLimiteInscription|date('d/m/Y') : '' }}</td>
+                                <td class="p-2">{{ sortie.estinscrit|length }}/{{ sortie.nbInscriptionMax }}</td>
+                                <td class="p-2">{{ sortie.etat ? sortie.etat.libelle : '' }}</td>
+                                <td class="p-2">{{ sortie.estinscrit.contains(app.user) ? 'X' : '' }}</td>
+                                <td class="p-2 text-gray-600 hover:underline p-2 whitespace-normal break-word">
+                                    <a href="{{ path('app_participant_detail', {'id': sortie.organisateur.id}) }}">{{ sortie.organisateur.prenom ~ ' ' ~ sortie.organisateur.nom|slice(0, 1) ~ '.' }}</a>
+                                </td>
+                                <td class="p-2 whitespace-normal break-words text-center">
                            
                             {% if sortie.etat.libelle == 'Annulée' %}
                             <div class="flex space-x-2">
@@ -174,15 +179,14 @@
             </tbody>
         </table>
         {# mt-6 hover:bg-gary-200 bg-[#2C2C2C] text-white font-semibold px-6 py-2 rounded-lg shadow-lg hover:shadow-xl focus:outline-none focus:ring focus:ring-gray-300 transition duration-300 ease-in-out transform hover:scale-105 #}
-            <div class="relative">
-                <div class="sticky bottom-0 mt-6">
-                    <a href="{{ path('sortie_create') }}" class="hover:bg-gray-200 bg-[#2C2C2C] text-white px-6 py-2 rounded-lg shadow-lg font-bold hover:shadow-xl transition duration-300 ease-in-out transform hover:scale-105">
+</div>
+ <div class="relative">
+                <div class="sticky bottom-0 mt-6 flex">
+                    <a href="{{ path('sortie_create') }}" class="mt-6 bg-gray-800 text-white font-semibold px-6 py-2 rounded-lg shadow-lg hover:shadow-xl focus:outline-none focus:ring focus:ring-gray-300 transition duration-300 ease-in-out transform hover:scale-105">
                         Créer une sortie
                     </a>
                 </div>
             </div>
-</div>
- 
         </div>
     </div>
 </div>
@@ -208,7 +212,7 @@
 </div>
  
 <script>
-      function openCancelModal(id, name, recapUrl, submitUrl) {
+    function openCancelModal(id, name, recapUrl, submitUrl) {
         document.getElementById('recap').innerHTML = "Êtes-vous sûr de vouloir annuler la sortie : " + name + " ?";
         document.getElementById('cancelForm').action = submitUrl;
         document.getElementById('cancelModal').classList.remove('hidden');

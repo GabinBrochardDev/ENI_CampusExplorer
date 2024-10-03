@@ -10,7 +10,6 @@ use App\Form\SortieModifType;
 use App\Repository\EtatRepository;
 use App\Repository\VilleRepository;
 use App\Service\SortieStateManager;
-use App\Service\SortieStateManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,7 +31,6 @@ class SortieController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         EtatRepository $etatRepository,
-        VilleRepository $villeRepository,
         VilleRepository $villeRepository,
         Security $security
     ): Response {
@@ -93,13 +91,6 @@ class SortieController extends AbstractController
         Security $security,
         SortieStateManager $sortieStateManager
     ): Response {
-    public function modifier(
-        Sortie $sortie,
-        Request $request,
-        EntityManagerInterface $entityManager,
-        Security $security,
-        SortieStateManager $sortieStateManager
-    ): Response {
         $this->checkIfOrganisateur($sortie, $security);
 
         $form = $this->createForm(SortieModifType::class, $sortie);
@@ -127,13 +118,6 @@ class SortieController extends AbstractController
     }
 
     #[Route('/sortie/publier/{id}', name: 'sortie_publier')]
-    public function publier(
-        Sortie $sortie,
-        EntityManagerInterface $entityManager,
-        EtatRepository $etatRepository,
-        Security $security,
-        SortieStateManager $sortieStateManager
-    ): Response {
     public function publier(
         Sortie $sortie,
         EntityManagerInterface $entityManager,
@@ -183,14 +167,6 @@ class SortieController extends AbstractController
         Security $security,
         SortieStateManager $sortieStateManager
     ): Response {
-    public function annuler(
-        Sortie $sortie,
-        Request $request,
-        EntityManagerInterface $entityManager,
-        EtatRepository $etatRepository,
-        Security $security,
-        SortieStateManager $sortieStateManager
-    ): Response {
         // Vérifier si l'utilisateur est l'organisateur ou un administrateur
         if ($sortie->getOrganisateur() !== $security->getUser() && !$security->isGranted('ROLE_ADMIN')) {
             throw $this->createAccessDeniedException('Vous n\'êtes pas autorisé à gérer cette sortie.');
@@ -224,12 +200,6 @@ class SortieController extends AbstractController
         EntityManagerInterface $entityManager,
         SortieStateManager $sortieStateManager
     ): Response {
-    public function inscrire(
-        Sortie $sortie,
-        Security $security,
-        EntityManagerInterface $entityManager,
-        SortieStateManager $sortieStateManager
-    ): Response {
         $user = $security->getUser();
 
         if ($sortie->getEtat()->getLibelle() === 'Ouverte' && !$sortie->getEstInscrit()->contains($user)) {
@@ -249,12 +219,7 @@ class SortieController extends AbstractController
         EntityManagerInterface $entityManager,
         SortieStateManager $sortieStateManager
     ): Response {
-    public function desister(
-        Sortie $sortie,
-        Security $security,
-        EntityManagerInterface $entityManager,
-        SortieStateManager $sortieStateManager
-    ): Response {
+
         $user = $security->getUser();
 
         if ($sortie->getEstInscrit()->contains($user)) {
@@ -269,9 +234,7 @@ class SortieController extends AbstractController
  
     #[Route('/sortie/{id}/afficher', name: 'sortie_afficher')]
     public function afficher(Sortie $sortie, SortieStateManager $sortieStateManager, EntityManagerInterface $entityManager): Response
-    public function afficher(Sortie $sortie, SortieStateManager $sortieStateManager, EntityManagerInterface $entityManager): Response
     {
-        // Mettre à jour l'état avant de l'afficher
         $sortieStateManager->updateState($sortie, $entityManager);
         $entityManager->flush();
 
