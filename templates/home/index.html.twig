@@ -117,6 +117,17 @@
                 <a href="{{ path('sortie_afficher', {'id': sortie.id}) }}" class="bg-transparent text-[#2C2C2C] border border-[#2C2C2C] px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
                     Afficher
                 </a>
+           {% elseif sortie.etat.libelle == 'En création' %}
+            <a href="{{ path('sortie_modifier', {'id': sortie.id}) }}" class="bg-transparent text-yellow-500 border border-yellow-500 px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
+                    Modifier
+                </a>
+                                                <a href="{{ path('sortie_publier', {'id': sortie.id}) }}" class="bg-transparent text-green-500 border border-green-500 px-4 py-2 rounded  transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
+                                                    Publier
+                                                </a>
+                                                <a href="{{ path('sortie_supprimer', {'id': sortie.id}) }}" class="bg-transparent text-red-500 border border-red-500 px-4 py-2 rounded  transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center"
+                                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette sortie ?');">
+                                                    Supprimer
+                                                </a>                          
             {% elseif sortie.etat.libelle == 'Ouverte' %}
                 <!-- If the outing is open, show both "Afficher", "Modifier", and "Annuler" buttons for the organizer -->
                 <a href="{{ path('sortie_afficher', {'id': sortie.id}) }}" class="bg-transparent text-[#2C2C2C] border border-[#2C2C2C] px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
@@ -129,26 +140,29 @@
                    onclick="openCancelModal('{{ sortie.id }}', '{{ sortie.nom }}', '{{ path('sortie_afficher', {'id': sortie.id}) }}', '{{ path('sortie_annuler', {'id': sortie.id}) }}');">
                     Annuler
                 </a>
+                
+        
             {% endif %}
         </div>
     {% else %}
         <!-- Visitor Logic -->
         <div class="flex space-x-2">
-            {% if sortie.etat.libelle == 'En cours' or sortie.etat.libelle == 'Terminée' or sortie.etat.libelle == 'Historisée' %}
+            {% if sortie.etat.libelle == 'En cours' or sortie.etat.libelle == 'Terminée' or sortie.etat.libelle == 'Historisée' or sortie.etat.libelle == 'Clôturée' %}
                 <!-- If the outing is ongoing, finished, or archived, show only the "Afficher" button -->
                 <a href="{{ path('sortie_afficher', {'id': sortie.id}) }}" class="bg-transparent text-[#2C2C2C] border border-[#2C2C2C] px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
                     Afficher
                 </a>
             {% else %}
                 <!-- Default logic for visitors -->
-                <a href="{{ path('sortie_afficher', {'id': sortie.id}) }}" class="bg-transparent text-[#2C2C2C] border border-[#2C2C2C] px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
-                    Afficher
-                </a>
+              
                 {% if sortie.estinscrit.contains(app.user) %}
                     <a href="{{ path('sortie_desister', {'id': sortie.id}) }}" class="bg-transparent text-red-500 border border-red-500 px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
                         Se désister
                     </a>
                 {% elseif sortie.etat.libelle == 'Ouverte' and sortie.estinscrit|length < sortie.nbInscriptionMax %}
+                 <a href="{{ path('sortie_afficher', {'id': sortie.id}) }}" class="bg-transparent text-[#2C2C2C] border border-[#2C2C2C] px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
+                    Afficher
+                </a>
                     <a href="{{ path('sortie_inscrire', {'id': sortie.id}) }}" class="bg-transparent text-green-500 border border-green-500 px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
                         S'inscrire
                     </a>
