@@ -5,7 +5,7 @@
 {% block body %}
 <div class="relative flex flex-col">
 
-    <!-- Sidebar -->
+    {# [DEBUT] MENU DES FILTRES #}
     <div id="sidebar" class="w-64 bg-white fixed top-0 left-0 h-full transition-transform transform lg:translate-x-0 -translate-x-full lg:block shadow-xl overflow-y-hidden">
         <div class="flex flex-col mt-10 px-6">
             <h1 class="text-2xl font-semibold mb-6">Filtrer les sorties</h1>
@@ -55,11 +55,22 @@
                             <label for="non-inscrit">Sorties auxquelles je ne suis pas inscrit/e</label>
                         </div>
                         <div class="flex items-center space-x-2">
-                            <input type="checkbox" id="terminees" name="terminees" {{ app.request.get('terminees') ? 'checked' : '' }} class="shadow-sm">
-                            <label for="terminees">Sorties terminées</label>
+                            <input type="checkbox" id="terminees" name="terminees" {{ app.request.get('Terminée') ? 'checked' : '' }} class="shadow-sm">
+                            <label for="terminees">Sorties terminées / Annulée</label>
                         </div>
+                        <div class="flex flex-col">
+                            <label for="sort" class="font-semibold">Trier par</label>
+                            <select id="sort" name="sort" class="border border-gray-300 p-2 rounded-lg focus:ring focus:ring-gray-200 shadow-sm">
+                            
+                                <option value="">Par défaut</option>
+                                <option value="dateAsc" {{ app.request.get('sort') == 'dateAsc' ? 'selected' : '' }}>Date de sortie : du plus ancien au plus récent</option>
+                                <option value="dateDesc" {{ app.request.get('sort') == 'dateDesc' ? 'selected' : '' }}>Date de sortie : du plus récent au plus ancien</option>
+                                <option value="clotureAsc" {{ app.request.get('sort') == 'clotureAsc' ? 'selected' : '' }}>Date de clôture des inscriptions : du plus ancien au plus récent</option>
+                                <option value="clotureDesc" {{ app.request.get('sort') == 'clotureDesc' ? 'selected' : '' }}>Date de clôture des inscriptions : du plus récent au plus ancien</option>
+                            </select>
+                        </div>                      
+                            
                     </div>
-
                     <!-- Bouton de recherche -->
                     <button type="submit" class="mt-6 bg-gray-800 text-white font-semibold px-6 py-2 rounded-lg shadow-lg hover:shadow-xl focus:outline-none focus:ring focus:ring-gray-300 transition duration-300 ease-in-out transform hover:scale-105">
                         Rechercher
@@ -68,8 +79,9 @@
             </form>
         </div>
     </div>
+    {# [FIN] MENU DES FILTRES #}
 
-    <!-- Main Content -->
+    {# [DEBUT] LISTE DES SORTIE #}
     <div class="flex-1 ml-[5rem] mr-[-7rem] p-4 overflow-y-auto flex-grow">
         <div class="w-full max-w-8xl mx-auto bg-white rounded-lg shadow-lg p-5">
             <!-- Table des sorties -->
@@ -88,11 +100,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for sortie in sorties %}
+                        {% for sortie in sorties %} {# Parcours de chaque sortie #}
                             <tr class="border-b hover:bg-[#F3F4F6]">
                                 <td class="p-2 whitespace-normal break-words">{{ sortie.nom }}</td>
-                                <td class="p-2">{{ sortie.dateHeureDebut ? sortie.dateHeureDebut|date('d/m/Y') : '' }}</td>
-                                <td class="p-2">{{ sortie.dateLimiteInscription ? sortie.dateLimiteInscription|date('d/m/Y') : '' }}</td>
+                                <td class="p-2">{{ sortie.dateHeureDebut ? sortie.dateHeureDebut|date('d/m/Y H:i') : '' }}</td>
+                                <td class="p-2">{{ sortie.dateLimiteInscription ? sortie.dateLimiteInscription|date('d/m/Y H:i') : '' }}</td>
                                 <td class="p-2">{{ sortie.estinscrit|length }}/{{ sortie.nbInscriptionMax }}</td>
                                 <td class="p-2">{{ sortie.etat ? sortie.etat.libelle : '' }}</td>
                                 <td class="p-2">{{ sortie.estinscrit.contains(app.user) ? 'X' : '' }}</td>
@@ -101,76 +113,79 @@
                                 </td>
                                 <td class="p-2 whitespace-normal break-words text-center">
                            
-{% if sortie.etat.libelle == 'Annulée' %}
-    <!-- Display only the "Afficher" button for a canceled outing -->
-    <div class="flex space-x-2">
-        <a href="{{ path('sortie_afficher', {'id': sortie.id}) }}" class="bg-transparent text-[#2C2C2C] border border-[#2C2C2C] px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
-            Afficher
-        </a>
-    </div>
-{% else %}
-    {% if sortie.organisateur == app.user %}
-        <!-- Organizer Logic -->
-        <div class="flex space-x-2">
-            {% if sortie.etat.libelle == 'Clôturée' or sortie.etat.libelle == 'En cours' or sortie.etat.libelle == 'Terminée' or sortie.etat.libelle == 'Historisée' %}
-                <!-- If the outing is closed, ongoing, finished, or archived, show only the "Afficher" button -->
-                <a href="{{ path('sortie_afficher', {'id': sortie.id}) }}" class="bg-transparent text-[#2C2C2C] border border-[#2C2C2C] px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
-                    Afficher
-                </a>
-           {% elseif sortie.etat.libelle == 'En création' %}
-            <a href="{{ path('sortie_modifier', {'id': sortie.id}) }}" class="bg-transparent text-yellow-500 border border-yellow-500 px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
-                    Modifier
-                </a>
-                                                <a href="{{ path('sortie_publier', {'id': sortie.id}) }}" class="bg-transparent text-green-500 border border-green-500 px-4 py-2 rounded  transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
-                                                    Publier
-                                                </a>
-                                                <a href="{{ path('sortie_supprimer', {'id': sortie.id}) }}" class="bg-transparent text-red-500 border border-red-500 px-4 py-2 rounded  transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center"
+                           {# GESTION DES BOUTONS #}
+                            {% if sortie.etat.libelle == 'Annulée' %}
+                                {# ETAT = "Annulée" => La seul action possible est l'affichage #}
+                                <div class="flex space-x-2">
+                                    <a href="{{ path('sortie_afficher', {'id': sortie.id}) }}" class="bg-transparent text-[#2C2C2C] border border-[#2C2C2C] px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
+                                        Afficher
+                                    </a>
+                                </div>
+                            {% else %}
+                                {# ETAT =! "Annulée" #}
+                                {% if sortie.organisateur == app.user %}
+                                    {# VISION ORGANISATEUR DE LA SORTIE #}
+                                    <div class="flex space-x-2">
+                                        {% if sortie.etat.libelle == 'Clôturée' or sortie.etat.libelle == 'En cours' or sortie.etat.libelle == 'Terminée' or sortie.etat.libelle == 'Historisée' %}
+                                            <a href="{{ path('sortie_afficher', {'id': sortie.id}) }}" class="bg-transparent text-[#2C2C2C] border border-[#2C2C2C] px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
+                                                Afficher
+                                            </a>
+                                        {% elseif sortie.etat.libelle == 'En création' %}
+                                            <a href="{{ path('sortie_modifier', {'id': sortie.id}) }}" class="bg-transparent text-yellow-500 border border-yellow-500 px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
+                                                Modifier
+                                            </a>
+                                            <a href="{{ path('sortie_publier', {'id': sortie.id}) }}" class="bg-transparent text-green-500 border border-green-500 px-4 py-2 rounded  transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
+                                                Publier
+                                            </a>
+                                            <a href="{{ path('sortie_supprimer', {'id': sortie.id}) }}" class="bg-transparent text-red-500 border border-red-500 px-4 py-2 rounded  transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center"
                                                 onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette sortie ?');">
-                                                    Supprimer
-                                                </a>                          
-            {% elseif sortie.etat.libelle == 'Ouverte' %}
-                <!-- If the outing is open, show both "Afficher", "Modifier", and "Annuler" buttons for the organizer -->
-                <a href="{{ path('sortie_afficher', {'id': sortie.id}) }}" class="bg-transparent text-[#2C2C2C] border border-[#2C2C2C] px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
-                    Afficher
-                </a>
-                <a href="{{ path('sortie_modifier', {'id': sortie.id}) }}" class="bg-transparent text-yellow-500 border border-yellow-500 px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
-                    Modifier
-                </a>
-                <a href="javascript:void(0);" class="bg-transparent text-red-500 border border-red-500 px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center"
-                   onclick="openCancelModal('{{ sortie.id }}', '{{ sortie.nom }}', '{{ path('sortie_afficher', {'id': sortie.id}) }}', '{{ path('sortie_annuler', {'id': sortie.id}) }}');">
-                    Annuler
-                </a>
-                
-        
-            {% endif %}
-        </div>
-    {% else %}
-        <!-- Visitor Logic -->
-        <div class="flex space-x-2">
-            {% if sortie.etat.libelle == 'En cours' or sortie.etat.libelle == 'Terminée' or sortie.etat.libelle == 'Historisée' or sortie.etat.libelle == 'Clôturée' %}
-                <!-- If the outing is ongoing, finished, or archived, show only the "Afficher" button -->
-                <a href="{{ path('sortie_afficher', {'id': sortie.id}) }}" class="bg-transparent text-[#2C2C2C] border border-[#2C2C2C] px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
-                    Afficher
-                </a>
-            {% else %}
-                <!-- Default logic for visitors -->
-              
-                {% if sortie.estinscrit.contains(app.user) %}
-                    <a href="{{ path('sortie_desister', {'id': sortie.id}) }}" class="bg-transparent text-red-500 border border-red-500 px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
-                        Se désister
-                    </a>
-                {% elseif sortie.etat.libelle == 'Ouverte' and sortie.estinscrit|length < sortie.nbInscriptionMax %}
-                 <a href="{{ path('sortie_afficher', {'id': sortie.id}) }}" class="bg-transparent text-[#2C2C2C] border border-[#2C2C2C] px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
-                    Afficher
-                </a>
-                    <a href="{{ path('sortie_inscrire', {'id': sortie.id}) }}" class="bg-transparent text-green-500 border border-green-500 px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
-                        S'inscrire
-                    </a>
-                {% endif %}
-            {% endif %}
-        </div>
-    {% endif %}
-{% endif %}
+                                                Supprimer
+                                            </a>                          
+                                        {% elseif sortie.etat.libelle == 'Ouverte' %}
+                                            <a href="{{ path('sortie_afficher', {'id': sortie.id}) }}" class="bg-transparent text-[#2C2C2C] border border-[#2C2C2C] px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
+                                                Afficher
+                                            </a>
+                                            <a href="{{ path('sortie_modifier', {'id': sortie.id}) }}" class="bg-transparent text-yellow-500 border border-yellow-500 px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
+                                                Modifier
+                                            </a>
+                                            <a href="javascript:void(0);" class="bg-transparent text-red-500 border border-red-500 px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center"
+                                            onclick="openCancelModal('{{ sortie.id }}', '{{ sortie.nom }}', '{{ path('sortie_afficher', {'id': sortie.id}) }}', '{{ path('sortie_annuler', {'id': sortie.id}) }}');">
+                                                Annuler
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                {# {% if sortie.organisateur == app.user %} #}
+                                    
+
+                                {% else %}
+                                    {# VISION !ORGANISATEUR #}
+                                    <div class="flex space-x-2">
+                                        {# TOUS SAUF ANNULEE ET EN CREATION #}
+                                        {% if sortie.etat.libelle == 'En cours' or sortie.etat.libelle == 'Terminée' or sortie.etat.libelle == 'Historisée' or sortie.etat.libelle == 'Clôturée' %}
+                                            <a href="{{ path('sortie_afficher', {'id': sortie.id}) }}" class="bg-transparent text-[#2C2C2C] border border-[#2C2C2C] px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
+                                                Afficher
+                                            </a>
+                                        {% else %}
+                                            {% if sortie.estinscrit.contains(app.user) %}
+                                            
+                                                <a href="{{ path('sortie_afficher', {'id': sortie.id}) }}" class="bg-transparent text-[#2C2C2C] border border-[#2C2C2C] px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
+                                                Afficher
+                                            </a>
+                                                <a href="{{ path('sortie_desister', {'id': sortie.id}) }}" class="bg-transparent text-red-500 border border-red-500 px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
+                                                    Se désister
+                                                </a>
+                                            {% elseif sortie.etat.libelle == 'Ouverte' and sortie.estinscrit|length < sortie.nbInscriptionMax %}
+                                            <a href="{{ path('sortie_afficher', {'id': sortie.id}) }}" class="bg-transparent text-[#2C2C2C] border border-[#2C2C2C] px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
+                                                Afficher
+                                            </a>
+                                                <a href="{{ path('sortie_inscrire', {'id': sortie.id}) }}" class="bg-transparent text-green-500 border border-green-500 px-4 py-2 rounded transition duration-300 ease-in-out transform hover:scale-105 w-28 text-center">
+                                                    S'inscrire
+                                                </a>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endif %}
                         </td>
                     </tr>
                 {% else %}
@@ -180,9 +195,12 @@
                 {% endfor %}
             </tbody>
         </table>
-        {# mt-6 hover:bg-gary-200 bg-[#2C2C2C] text-white font-semibold px-6 py-2 rounded-lg shadow-lg hover:shadow-xl focus:outline-none focus:ring focus:ring-gray-300 transition duration-300 ease-in-out transform hover:scale-105 #}
+    
+    {# [FIN] LISTE DES SORTIE #}
 </div>
- <div class="relative">
+
+
+<div class="relative">
                 <div class="sticky bottom-0 mt-6 flex">
                     <a href="{{ path('sortie_create') }}" class="mt-6 bg-gray-800 text-white font-semibold px-6 py-2 rounded-lg shadow-lg hover:shadow-xl focus:outline-none focus:ring focus:ring-gray-300 transition duration-300 ease-in-out transform hover:scale-105">
                         Créer une sortie
@@ -206,13 +224,13 @@
         </div>
         <div class="mt-6 flex justify-end">
           <button type="button" class="bg-transparent text-[#2C2C2C] border border-[#2C2C2C] px-4 py-2 rounded  transition duration-300 ease-in-out transform hover:scale-105 mr-2" onclick="closeModal()">Annuler</button>
-          <button type="submit" class="bg-transparent text-yellow-500 border border-yellow-500 px-4 py-2 rounded  transition duration-300 ease-in-out transform hover:scale-105">Confirmer l'annulation</button>
+          <button type="submit" class="bg-transparent text-red-500 border border-red-500 px-4 py-2 rounded  transition duration-300 ease-in-out transform hover:scale-105">Confirmer l'annulation</button>
         </div>
       </form>
     </div>
   </div>
 </div>
- 
+
 <script>
     function openCancelModal(id, name, recapUrl, submitUrl) {
         document.getElementById('recap').innerHTML = "Êtes-vous sûr de vouloir annuler la sortie : " + name + " ?";
