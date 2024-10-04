@@ -82,7 +82,7 @@
                 <h2 class="text-3xl font-semibold text-gray-900 mb-6">Personnes inscrites</h2>
                 <ul class="list-disc pl-5 space-y-3 text-lg">
                     {% for inscrit in inscrits %}
-                        <li class="text-gray-700">{{ inscrit.nom }}</li>
+                        <li class="text-gray-700">{{ inscrit.prenom }} {{ inscrit.nom }}</li>
                     {% else %}
                         <li class="text-gray-500">Aucune personne inscrite</li>
                     {% endfor %}

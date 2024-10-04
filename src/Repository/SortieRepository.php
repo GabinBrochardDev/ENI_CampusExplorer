@@ -17,9 +17,12 @@ class SortieRepository extends ServiceEntityRepository
         parent::__construct($registry, Sortie::class);
     }
 
-    public function findByFilters($campusId, $search, $startDate, $endDate, $isOrganisateur, $isInscrit, $isNonInscrit, $isTerminees, Participant $user)
+    public function findByFilters($campusId, $search, $startDate, $endDate, $isOrganisateur, $isInscrit, $isNonInscrit, $isTerminees, $sort, Participant $user)
     {
-        $qb = $this->createQueryBuilder('s');
+        $qb = $this->createQueryBuilder('s')
+            ->leftJoin('s.etat', 'e')
+            ->andWhere('e.libelle != :historisee')
+            ->setParameter('historisee', 'Historisée');
 
         // Filtrer par campus
         if ($campusId) {
@@ -63,9 +66,32 @@ class SortieRepository extends ServiceEntityRepository
 
         // Filtrer par sorties terminées
         if ($isTerminees) {
-            $qb->leftJoin('s.etat', 'e')
-               ->andWhere('e.libelle = :termine')
-               ->setParameter('termine', 'Terminée');
+            $qb->andWhere('e.libelle IN (:terminees)')
+            ->setParameter('terminees', ['Terminée', 'Annulée']);
+        } else {
+            // Par défaut, exclure les "Terminée" et "Annulée" si la case n'est pas cochée
+            $qb->andWhere('e.libelle NOT IN (:terminees)')
+            ->setParameter('terminees', ['Terminée', 'Annulée']);
+        }
+
+        // Appliquer le tri
+        switch ($sort) {
+            case 'dateAsc':
+                $qb->orderBy('s.dateHeureDebut', 'ASC');
+                break;
+            case 'dateDesc':
+                $qb->orderBy('s.dateHeureDebut', 'DESC');
+                break;
+            case 'clotureAsc':
+                $qb->orderBy('s.dateLimiteInscription', 'ASC');
+                break;
+            case 'clotureDesc':
+                $qb->orderBy('s.dateLimiteInscription', 'DESC');
+                break;
+            default:
+                // Tri par défaut, par exemple par date de sortie croissante
+                $qb->orderBy('s.dateHeureDebut', 'ASC');
+                break;
         }
 
         return $qb->getQuery()->getResult();

@@ -234,7 +234,7 @@ class SortieController extends AbstractController
  
     #[Route('/sortie/{id}/afficher', name: 'sortie_afficher')]
     public function afficher(Sortie $sortie, SortieStateManager $sortieStateManager, EntityManagerInterface $entityManager): Response
-    {
+   {
         $sortieStateManager->updateState($sortie, $entityManager);
         $entityManager->flush();
 
@@ -244,6 +244,6 @@ class SortieController extends AbstractController
         return $this->render('sortie/afficher.html.twig', [
             'sortie' => $sortie,
             'inscrits' => $inscrits,
-        ]);
+        ]); 
     }
 }

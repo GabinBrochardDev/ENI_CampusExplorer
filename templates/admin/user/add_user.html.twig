@@ -3,6 +3,11 @@
 {% block title %}Ajouter un utilisateur{% endblock %}
 
 {% block body %}
+{% for message in app.flashes('danger') %}
+    <div class="bg-red-500 text-white p-4 rounded mb-4">
+        {{ message }}
+    </div>
+{% endfor %}
     <h1 class="text-3xl font-bold mb-6 text-center text-gray-800 my-12">Ajouter un utilisateur</h1>
 
     <!-- Conteneur de formulaire avec espacement avant le footer -->
@@ -74,28 +79,28 @@
                 </div>
             </div>
 
-                   <!-- Section pour la photo actuelle et la prévisualisation de la nouvelle photo -->
-           <div class="mb-6">
-    <div class="mb-4 flex justify-center items-center">
+    
+
+  <div class="mb-6">
+    <div class="mb-4 flex flex-col items-center justify-center">
         <div>
             {% if participant.photo %}
+                <p id="no-photo-text" style="display: none;">Il n'y a pas encore de photo de profil.</p>
                 <p>Photo actuelle :</p>
                 <img src="{{ asset('uploads/profile_photos/' ~ participant.photo) }}" alt="Photo de profil" class="w-32 h-32 rounded-full">
+            {% else %}
+                <p id="no-photo-text">Il n'y a pas encore de photo de profil.</p>
             {% endif %}
-            <p id="no-photo-text" {% if participant.photo %} style="display: none;" {% endif %}>Il n'y a pas encore de photo de profil.</p>
         </div>
 
-        <!-- Centre l'image de prévisualisation -->
         <div class="flex justify-center items-center">
-            <div>
-                <p id="new-photo-label" style="display: none;" class="text-center">Nouvelle photo :</p>
-                <img id="preview-image" class="mb-2 h-32 w-32 rounded-full object-cover" style="display: none;" alt="Aperçu de la nouvelle photo">
-            </div>
+            <p id="new-photo-label" style="display: none;" class="text-center">Nouvelle photo :</p>
+            <img id="preview-image" class="mb-2 h-32 w-32 rounded-full object-cover" style="display: none;" alt="Aperçu de la nouvelle photo">
         </div>
     </div>
 
-    <div class="text-center">
-        {{ form_row(form.photo, {'attr': {'class': 'border border-gray-300 rounded-md p-2 w-full', 'onchange': 'previewImage(event)'}}) }}
+    <div>
+        {{ form_row(form.photo, {'attr': {'class': 'border border-gray-300 rounded-md p-2 w-full'}}) }}
     </div>
 </div>
 
@@ -106,40 +111,41 @@
                     Ajouter l'utilisateur
                 </button>
             </div>
-
+   {{ form_end(form) }}
             <!-- JavaScript pour prévisualiser la nouvelle photo et afficher le nom du fichier -->
             <script>
-                document.getElementById('custom-file-label').addEventListener('click', function () {
-                    document.getElementById('form_photo').click(); // Simule le clic sur l'input de fichier caché
-                });
+document.addEventListener('DOMContentLoaded', function () {
+    const photoInput = document.querySelector('input[type="file"]');
+    const previewImage = document.getElementById('preview-image');
+    const newPhotoLabel = document.getElementById('new-photo-label');
+    const noPhotoText = document.getElementById('no-photo-text');
 
-                function previewImage(event) {
-                    const file = event.target.files[0];
-                    const preview = document.getElementById('preview-image');
-                    const label = document.getElementById('new-photo-label');
-                    const fileName = document.getElementById('file-chosen');
-                    const noPhotoText = document.getElementById('no-photo-text');
+    if (photoInput) {
+        photoInput.addEventListener('change', function (event) {
+            const file = event.target.files[0];
 
-                    if (file) {
-                        const reader = new FileReader();
+            if (file) {
+                const reader = new FileReader();
 
-                        reader.onload = function (e) {
-                            preview.src = e.target.result;
-                            preview.style.display = 'block';
-                            label.style.display = 'block';
-                            if (noPhotoText) noPhotoText.style.display = 'none';  // Masquer le texte "Il n'y a pas encore de photo de profil"
-                        };
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    previewImage.style.display = 'block'; // Afficher l'image prévisualisée
+                    newPhotoLabel.style.display = 'block'; // Afficher le label "Nouvelle photo"
+                    if (noPhotoText) noPhotoText.style.display = 'none'; // Masquer le texte "Il n'y a pas encore de photo"
+                };
 
-                        reader.readAsDataURL(file);
-                        fileName.textContent = file.name;  // Afficher le nom du fichier sélectionné
-                    } else {
-                        preview.src = '';
-                        preview.style.display = 'none';
-                        label.style.display = 'none';
-                        if (noPhotoText) noPhotoText.style.display = 'block';  // Remettre le texte si aucune photo n'est sélectionnée
-                        fileName.textContent = '';  // Réinitialiser le texte du nom du fichier
-                    }
-                }
+                reader.readAsDataURL(file); // Lire le fichier comme URL
+            } else {
+                previewImage.style.display = 'none'; // Masquer l'image si aucun fichier n'est sélectionné
+                newPhotoLabel.style.display = 'none'; // Masquer le label si aucun fichier n'est sélectionné
+                if (noPhotoText) noPhotoText.style.display = 'block'; // Remettre le texte si aucune photo n'est sélectionnée
+            }
+        });
+    }
+});
+
+
+
             </script>
         </div>
     </div>

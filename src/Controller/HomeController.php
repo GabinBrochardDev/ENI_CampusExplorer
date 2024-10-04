@@ -23,6 +23,7 @@ class HomeController extends AbstractController
         $isInscrit = $request->query->get('inscrit');
         $isNonInscrit = $request->query->get('non-inscrit');
         $isTerminees = $request->query->get('terminees');
+        $sort = $request->query->get('sort'); // Nouveau paramètre de tri
 
         // Filtrer les sorties avec le repository
         $sorties = $sortieRepository->findByFilters(
@@ -34,6 +35,7 @@ class HomeController extends AbstractController
             $isInscrit,
             $isNonInscrit,
             $isTerminees,
+            $sort, // Passer le tri au repository
             $this->getUser() // Le participant connecté
         );
 
